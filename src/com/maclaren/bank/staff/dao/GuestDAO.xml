@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="staff">
+	<typeAlias alias="guest" type="com.maclaren.bank.staff.bean.Guest" />
+	<typeAlias alias="guestType" type="com.maclaren.bank.staff.bean.GuestType" />
+	<resultMap id="guestMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="phone" column="phone" />
+		<result property="gender_id" column="gender_id" />
+		<result property="birthday" column="birthday" />
+		<result property="linker" column="linker" />
+		<result property="linkerPhone" column="linkerPhone" />
+		<result property="address" column="address" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="guestTypeMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="guestTypeName" column="guestTypeName" />
+	</resultMap>
+	<select id="queryAllGuest" parameterClass="java.util.Map"
+		resultClass="guest">
+		select
+			a.id,
+			a.username,
+			a.password,
+			a.gender_id,
+			b.dictValue genderName,
+			a.phone,
+			a.birthday,
+			a.linker,
+			a.linkerPhone,
+			a.address,
+			a.createtime,
+			a.remark
+		from
+			guest a, dict b
+		where a.gender_id = b.dictName
+	</select>
+	<select id="queryAllGuestType" parameterClass="java.util.Map"
+		resultClass="guestType">
+		select 
+			id guestType_id,
+			guestTypeName
+		from 
+			guestType
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

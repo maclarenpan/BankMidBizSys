@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="forwardAuth" type="com.maclaren.bank.auth.bean.ForwardAuth" />
+	<select id="queryAllForwardAuth" parameterClass="java.util.Map"
+		resultClass="forwardAuth">
+		select
+			id,
+			role_id,
+			auth_id,
+			operator_id
+		from
+			forwardauth
+	</select>
+		<select id="queryAllForwardAuthByConditions" parameterClass="java.util.Map"
+		resultClass="forwardAuth">
+		select
+			id,
+			role_id,
+			auth_id,
+			operator_id
+		from
+			forwardauth
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="role_id">
+				role_id = #role_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="auth_id">
+				auth_id = #auth_id#
+			</isNotEmpty>
+	</select>
+	<insert id="insertForwardAuth" parameterClass="java.util.Map">
+		insert into forwardAuth
+			(
+				id,
+				role_id,
+				auth_id,
+				operator_id
+			)
+		values
+			(
+				seq_forwardauth.nextval,
+				#role_id#,
+				#auth_id#,
+				#operator_id#
+			)
+	</insert>
+	<delete id="deleteForwardAuth" parameterClass="java.util.Map">
+		delete from 
+			forwardAuth
+		where
+			id = #id#
+			
+	</delete>
+	<update id="updateForwardAuth" parameterClass="java.util.Map">
+		update forwardAuth
+		set
+			role_id = #role_id#,
+			auth_id = #auth_id#
+		where
+			id = #id#
+	</update>
+</sqlMap>
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+<html>
+<head>
+	<title>record</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){
+		var MyRecord = Ext.data.Record.create([
+	    {name: 'title'},
+	    {name: 'username', mapping: 'author'},
+	    {name: 'loginTimes', type: 'int'},
+	    {name: 'lastLoginTime', mapping: 'loginTime', type: 'date'} 
+		]);
+	var r=new MyRecord({
+		title:"日志标题",
+		username:"easyjf",
+		loginTimes:100,
+		loginTime:new Date()
+	});	
+	alert(MyRecord.getField("username").mapping);
+	alert(MyRecord.getField("lastLoginTime").type);
+	alert(r.data.username);
+	alert(r.get("loginTimes"));
+ });
+
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

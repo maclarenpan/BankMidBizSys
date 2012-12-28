@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"   
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">   
+
+<sqlMapConfig>     
+	<sqlMap resource="com/maclaren/bank/login/dao/UserDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/report/dao/ReportDAO.xml" /> 
+	<sqlMap resource="com/maclaren/bank/auth/dao/AuthDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/auth/dao/CustomAuthDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/auth/dao/ProxyLimitDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/auth/dao/ReverseAuthDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/auth/dao/ForwardAuthDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/auth/dao/RoleDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/orga/dao/SubbankDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/staff/dao/AccountDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/staff/dao/ProxyUserDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/staff/dao/GuestDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/staff/dao/OperatorDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/util/dao/UtilDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/finance/dao/ExchangeRateDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/finance/dao/CurrencyTypeDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/finance/dao/FinanceCalculateDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/finance/dao/YieldDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/proxy/dao/ProxyDAO.xml" />
+	<sqlMap resource="com/maclaren/bank/biz/common/dao/BizDAO.xml" />
+</sqlMapConfig>   

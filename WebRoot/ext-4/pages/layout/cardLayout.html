@@ -1,0 +1,62 @@
+<html>
+<head>
+	<title>card Layout</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){ 
+
+		var panel=new Ext.Panel({
+
+renderTo:"div1",
+
+title:"容器组件",
+
+width:500,
+
+height:200,
+
+layout:"card",
+
+activeItem: 0,
+
+layoutConfig: {
+
+animate: true 
+
+},
+
+items:[{title:"子元素1",html:"这是子元素1中的内容"},
+
+{title:"子元素2",html:"这是子元素2中的内容"},
+
+{title:"子元素3",html:"这是子元素3中的内容"}
+
+],
+
+buttons:[{text:"切换",handler:changeTab}]
+
+}
+
+);
+
+var i=1;
+
+function changeTab()
+
+{ 
+
+panel.getLayout().setActiveItem(i++); 
+
+if(i>2)i=0;
+
+}
+
+});
+
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

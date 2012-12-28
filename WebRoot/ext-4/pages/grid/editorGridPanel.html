@@ -1,0 +1,108 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){ 
+
+var data=[{id:1,
+
+name:'小王',
+
+email:'xiaowang@easyjf.com',
+
+sex:'男',
+
+bornDate:'1991-4-4'},
+
+{id:1,
+
+name:'小李',
+
+email:'xiaoli@easyjf.com',
+
+sex:'男',
+
+bornDate:'1992-5-6'},
+
+{id:1,
+
+name:'小兰',
+
+email:'xiaoxiao@easyjf.com',
+
+sex:'女',
+
+bornDate:'1993-3-7'} 
+
+];
+
+var store=new Ext.data.JsonStore({
+
+data:data,
+
+fields:["id","name","sex","email",{name:"bornDate",type:"date",dateFormat:"Y-n-j"}]
+
+}); 
+
+var colM=new Ext.grid.ColumnModel([{
+
+header:"姓名",
+
+dataIndex:"name",
+
+sortable:true,
+
+editor:new Ext.form.TextField()}, 
+
+{header:"性别",
+
+dataIndex:"sex"
+
+},
+
+{header:"出生日期",
+
+dataIndex:"bornDate",
+
+width:120,
+
+renderer:Ext.util.Format.dateRenderer('Y年m月d日')},
+
+{header:"电子邮件",
+
+dataIndex:"email",
+
+sortable:true,
+
+editor:new Ext.form.TextField()}
+
+]);
+
+var grid = new Ext.grid.EditorGridPanel({
+
+renderTo:"hello",
+
+title:"学生基本信息管理",
+
+height:200,
+
+width:600, 
+
+cm:colM,
+
+store:store,
+
+autoExpandColumn:3
+
+});
+
+});
+
+	</script>
+</head>
+<body>
+	<div id="hello"></div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){
+			new Ext.Panel({
+				renderTo: "div1",
+				title: "accordion Layout",
+				width: 200,
+				height: 500,
+				layout: "accordion",
+				layoutConfig: {
+					animate: true
+				},
+				items:[
+					{title: "line1", html: "This is line1"},
+					{title: "line2", html: "This is line2"},
+					{title: "line3", html: "This is line3"}
+				]
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

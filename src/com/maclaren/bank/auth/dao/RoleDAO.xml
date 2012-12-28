@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="role" type="com.maclaren.bank.auth.bean.Role" />
+	<typeAlias alias="roleCombo" type="com.maclaren.bank.auth.bean.RoleCombo" />  
+	<resultMap id="roleComboMapping" class="java.util.Map" >
+		<result property="role_id" column="id" />
+		<result property="roleName" column="roleName" />
+	</resultMap>
+	<select id="queryAllRole" parameterClass="java.util.Map"
+		resultClass="role">
+		select
+			id role_id,
+			roleName
+		from
+			role
+	</select>
+	<select id="queryRoleByConditions" resultClass="role" 
+		parameterClass="java.util.Map">
+		SELECT 
+			id role_id,
+			roleName
+		FROM 
+			role
+		where	
+			1 = 1
+		 <isNotEmpty prepend="AND" property="role_id">
+		 	id = #role_id#
+		 </isNotEmpty>
+	</select>
+	<insert id="insertRole" parameterClass="role">
+		insert into role (
+			id,
+			roleName
+		)
+		values (
+			seq_role.nextval,
+			#roleName#
+		)
+	</insert>
+	
+	<update id="updateRole" parameterClass="role">
+		update role set
+			roleName = #roleName#
+		where
+			id = #role_id#
+	</update>
+	
+	<delete id="deleteRole" parameterClass="string">
+		delete from 
+			role
+		where 
+			id = #role_id#
+	</delete>
+	
+	<update id="updateRole2Operator" parameterClass="java.util.Map">
+		update operator set
+			role_id = #role_id#
+		where 
+			id = #operator_id#
+	</update>
+	
+	<select id="getRoleCombo" resultClass="roleCombo">
+		select
+			id role_id,
+			roleName
+		from 
+			role
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

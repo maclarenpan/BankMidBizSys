@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orga">
+	<typeAlias alias="subbank" type="com.maclaren.bank.orga.bean.Subbank" />
+	<typeAlias alias="bankCombo" type="com.maclaren.bank.orga.bean.BankCombo" />
+	<resultMap id="subbankMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="subbankName" column="subbankName" />
+		<result property="subbankNo" column="subbankNo" />
+		<result property="address" column="address" />
+		<result property="parentBank_id"  column="parentBank_id" />
+	</resultMap>
+	<select id="queryAllSubbank" parameterClass="java.util.Map"
+		resultClass="subbank">
+		select
+			a.id,
+			a.subbankName,
+			a.subbankNo,
+			a.address,
+			a.parentBank_id,
+			b.subbankName as parentBankName
+		from 
+			subbank a, subbank b
+		where 
+			a.parentBank_id = b.id
+	</select>
+	
+	<select id="queryBankCombo" resultClass="bankCombo">
+		select 
+			a.id bank_id,
+			a.subbankName bankName
+		from
+			subbank a
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

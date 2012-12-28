@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="auth" type="com.maclaren.bank.auth.bean.Auth" />
+	<typeAlias alias="authCombo" type="com.maclaren.bank.auth.bean.AuthCombo" />
+	<typeAlias alias="menuAuth" type="com.maclaren.bank.auth.bean.MenuAuth" />
+	<resultMap id="authMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="authName" column="authName" />
+		<result property="authCode" column="authCode" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<select id="getMenuForwardAuth" parameterClass="java.util.Map"
+		resultClass="menuAuth">
+		select DISTINCT 
+			p.id operator_id, 
+			q.authcode authCode 
+		from 
+			operator p, 
+			forwardauth t, 
+			auth q 
+		where 
+			p.role_id = t.role_id and 
+			t.auth_id = q.id and
+			p.id = #operator_id#
+	</select>
+	
+	<select id="getMenuReverseAuth" parameterClass="java.util.Map"
+		resultClass="menuAuth">
+		select DISTINCT 
+			p.id operator_id, 
+			q.authcode authCode
+		from 
+			operator p, 
+			reverseauth t, 
+			auth q 
+		where 
+			p.role_id = t.role_id and 
+			t.auth_id = q.id and
+			p.id = #operator_id#
+	</select>
+	
+	<select id="getMenuCustomAuth" parameterClass="java.util.Map"
+		resultClass="menuAuth">
+		select distinct 
+			p.id operator_id, 
+			q.authcode authCode
+		from 
+			operator p, 
+			customauth t, 
+			auth q 
+		where 
+			p.id = t.oper_id and 
+			t.auth_id = q.id and
+			p.id = #operator_id#
+	</select>
+	
+	<select id="queryAllAuth" parameterClass="java.util.Map"
+		resultClass="auth">
+		select
+			id,
+			authName,
+			authCode,
+			status
+		from
+			auth
+	</select>
+	<select id="queryAuthCombo" resultClass="authCombo">
+		select 
+			id auth_id,
+			authName
+		from 
+			auth
+	</select>
+	<insert id="addAuth" parameterClass="auth">
+		insert into auth(
+			id,
+			authName,
+			authCode,
+			status
+		)
+		values(
+			#id#,
+			#authName#,
+			#authCode#,
+			#status#
+		)
+	</insert>
+	<update id="updateAuth" parameterClass="auth">
+		update auth set
+			authName = #authName#,
+			authCode = #authCode#,
+			status = #status#
+		where 
+			id = #id#
+	</update>
+	<delete id="delAuth" parameterClass="auth">
+		delete from 
+			auth 
+		where 
+			id = #id#
+	</delete>
+	<!-- 为角色添加权限时，先判断是否存在 -->
+	<select id="queryAuth4Role" parameterClass="java.util.Map"
+		resultClass="int">
+		select
+			1
+		from 
+			role_auth
+		where
+			role_id = #role_id# and
+			auth_id = #auth_id#
+	</select>
+	<insert id="addAuth2Role" parameterClass="java.util.Map">
+		insert into role_auth(
+			role_id,
+			auth_id
+		)
+		values (
+			#role_id#,
+			#auth_id#
+		)
+	</insert>
+	<!-- end -->
+	<delete id="delAuth4Role" parameterClass="java.util.Map">
+		delete from 
+			role_auth
+		where 
+			role_id = #role_id# and
+			auth_id = #auth_id#
+	</delete>
+	<select id="queryIfExistCustomAuth" parameterClass="java.util.Map"
+		resultClass="int">
+		select 
+			1
+		from customauth
+		where
+			auth_id = #auth_id# and
+			operator_id = #operator_id#
+	</select>
+	<select id="queryIfExistReverseAuth" parameterClass="java.util.Map"
+		resultClass="int">
+		select 
+			1
+		from reverseauth
+		where
+			auth_id = #auth_id# and
+			operator_id = #operator_id#
+	</select>
+	<!-- 为操作员添加个性化权限 -->
+	<insert id="addCustomAuth2Operator" parameterClass="java.util.Map">
+		insert into customauth(
+			auth_id,
+			operator_id
+		)
+		values(
+			#auth_id#,
+			#operator_id#
+		)
+	</insert>
+	<!-- 为操作员删除个性化权限 -->
+	<delete id="delCustomAuth4Operator" parameterClass="java.util.Map">
+		delete from 
+			customauth
+		where 
+			auth_id = #auth_id# and
+			operator_id = #operator_id#
+	</delete>
+		<!-- 为操作员添加反向权限 -->
+	<insert id="addReverseAuth2Operator" parameterClass="java.util.Map">
+		insert into reverseauth(
+			auth_id,
+			operator_id
+		)
+		values(
+			#auth_id#,
+			#operator_id#
+		)
+	</insert>
+	<!-- 为操作员删除反向权限 -->
+	<delete id="delReverseAuth4Operator" parameterClass="java.util.Map">
+		delete from 
+			reverseauth
+		where 
+			auth_id = #auth_id# and
+			operator_id = #operator_id#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+

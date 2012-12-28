@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="proxyLimit" type="com.maclaren.bank.auth.bean.ProxyLimit" />
+	<resultMap id="proxyLimitMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="maxAmount" column="maxAmount" />
+		<result property="minAmount" column="minAmount" />
+	</resultMap>
+	<select id="queryAllProxyLimit" parameterClass="java.util.Map"
+		resultClass="proxyLimit">
+		select
+			id,
+			maxAmount,
+			minAmount
+		from
+			proxyLimit
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

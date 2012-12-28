@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="login">
+	<typeAlias alias="operator" type="com.maclaren.bank.staff.bean.Operator" />
+	<typeAlias alias="operatorCombo" type="com.maclaren.bank.staff.bean.OperatorCombo" />
+	<typeAlias alias="userType" type="com.maclaren.bank.staff.bean.UserType" />
+	<typeAlias alias="dict" type="com.maclaren.bank.util.bean.Dict" /> 
+	<typeAlias alias="operatorStatus" type="com.maclaren.bank.staff.bean.Status" />
+	<resultMap id="userTypeMapping" class="userType" >
+		<result property="userType_id" column="id" />
+		<result property="userTypeName" column="userTypeName" />
+	</resultMap>
+	<resultMap id="operatorStatusMapping" class="operatorStatus">
+		<result property="status_id" column="dictName" />
+		<result property="statusName" column="dictValue" />
+	</resultMap>
+	<select id="checkOperator" resultClass='operator' 
+		parameterClass="java.util.Map">
+		SELECT 
+			id,
+			username,
+			password,
+			userType_id,
+			address,
+			linker,
+			linkerPhone,
+			role_id,
+			status as status_id,
+			createtime		
+		 FROM
+		 	operator 
+         WHERE
+			username = #username# and 
+			password = #password#
+	</select>
+	<select id="queryAllOperator" resultClass="operator" parameterClass="java.util.Map">
+	<![CDATA[]]>
+		SELECT 
+			a.id,
+			a.username,
+			a.password,
+			a.userType_id,
+			a.address,
+			a.linker,
+			a.linkerPhone,
+			a.role_id,
+			a.status as status_id,
+			a.createtime		
+		 FROM operator a
+		 order by createtime desc	 	
+	</select>
+	<select id="queryOperatorCombo" resultClass="operatorCombo">
+		select 
+			id operator_id,
+			username operatorName
+		from 
+			operator
+	</select>
+	<select id="queryOperatorByConditions" resultClass="operator" parameterClass="java.util.Map">
+		SELECT 
+			a.id,
+			a.username,
+			a.password,
+			a.userType_id,
+			a.address,
+			a.linker,
+			a.linkerPhone,
+			a.role_id,
+			a.status as status_id,
+			a.createtime		
+		 FROM operator a
+		 where	
+			1 = 1
+		 <isNotEmpty prepend="AND" property="username">
+		 <![CDATA[a.username like '%$username$%']]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="role_id">
+		 <![CDATA[a.role_id = #role_id#]]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="userType_id">
+		 <![CDATA[a.userType_id = #userType_id#]]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="status">
+		 <![CDATA[a.status = #status#]]>
+		 </isNotEmpty>
+		  <isNotEmpty prepend="AND" property="starttime">
+		 <![CDATA[a.createtime > #starttime#]]>
+		 </isNotEmpty>
+		  <isNotEmpty prepend="AND" property="endtime">
+		 <![CDATA[a.createtime < #endtime#]]>
+		 </isNotEmpty>
+		 order by createtime desc	
+	</select>
+	<update id="updateUserType2Operator" parameterClass="java.util.Map">
+		update set operator
+			userType_id = #userType_id#
+		where 
+			id = #operator_id#
+	</update>
+	<!-- 激活操作员 -->
+	<update id="activeOperator" parameterClass="string">
+		update operator set
+			status = "1"
+		where 
+			operator_id = #operator_id#
+	</update>
+	<!-- 钝化操作员 -->
+	<update id="passivateOperator" parameterClass="string">
+		update operator set
+			status = "0"
+		where
+			operator_id = #operator_id# 
+	</update>
+	<insert id="insertOperator" parameterClass="java.util.Map">
+		insert into operator
+			(
+				id,
+				username,
+				password,
+				usertype_id,
+				address,
+				linker,
+				linkerphone,
+				role_id,
+				status,
+				createtime
+			)
+		values
+			(
+				seq_operator.nextval,
+				#username#,
+				#password#,
+				#userType_id#,
+				#address#,
+				#linker#,
+				#linkerPhone#,
+				#role_id#,
+				#status_id#,
+				sysdate
+			)
+	</insert>
+	<delete id="deleteOperator" parameterClass="java.util.Map">
+		delete from 
+			operator
+		where
+			id = #id#
+			
+	</delete>
+	<update id="updateOperator" parameterClass="java.util.Map">
+		update operator
+		set
+			username = #username#,
+			password = #password#,
+			userType_id = #userType_id#,
+			address = #address#,
+			linker = #linker#,
+			linkerPhone = #linkerPhone#,
+			role_id = #role_id#,
+			status = #status_id#,
+			createtime = sysdate
+		where
+			id = #id#
+	</update>
+	<select id="getUserTypeCombo" resultMap="userTypeMapping">	
+		select 
+			id,
+			userTypeName
+		from 
+			userType
+	</select>
+	<select id="getOperatorStatusCombo" resultMap="operatorStatusMapping">
+		select 
+			p.dictName,
+			p.dictValue
+		from
+			dict p, dictGroup q
+		where
+			p.dictgroup_id = q.id and
+			q.dictgroupname = 'operatorStatus'
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

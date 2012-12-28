@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title>Layout Test</title>
+		<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+		<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+		<script type="text/javascript">
+			Ext.onReady(function(){
+				new Ext.Panel({
+					renderTo: "div1",
+					title: "容器组件1",
+					layout: 'column',
+					width: 305,
+					height: 100,
+					items: [
+						{title: 'column1', width: 100},
+						{title: 'column2', width: 100},
+						{title: 'column3', width: 100}
+						]
+				});
+				new Ext.Panel({
+					renderTo: "div2",
+					title: "容器组件2",
+					layout: 'column',
+					width: 305,
+					height: 100,
+					items: [
+						{title: "column1", columnWidth:.2},
+						{title: "column2", columnWidth:.3},
+						{title: "column3", columnWidth:.5}
+					]
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="div1"></div><br/>
+		<div id="div2"></div><br/>
+	</body>
+</html>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="profiler.settings.instrument.empty.methods">true</entry>
+<entry key="ProfilerCPUSettings_version">1.0</entry>
+<entry key="ProfilerCPUSettings_profile_runnables">true</entry>
+<entry key="ProfilerCPUSettings_filter_type">2</entry>
+<entry key="ProfilerMemorySettings_track_every">10</entry>
+<entry key="ProfilerMemorySettings_mode">4</entry>
+<entry key="ProfilerCPUSettings_root_classes">com.maclaren.bank.auth.bean.**
+com.maclaren.bank.auth.dao.**
+com.maclaren.bank.auth.service.**
+com.maclaren.bank.auth.web.**
+com.maclaren.bank.biz.finance.bean.**
+com.maclaren.bank.biz.finance.dao.**
+com.maclaren.bank.biz.finance.service.**
+com.maclaren.bank.biz.finance.web.**
+com.maclaren.bank.biz.proxy.bean.**
+com.maclaren.bank.biz.proxy.dao.**
+com.maclaren.bank.biz.proxy.service.**
+com.maclaren.bank.biz.proxy.web.**
+com.maclaren.bank.biz.transfer.bean.**
+com.maclaren.bank.biz.transfer.dao.**
+com.maclaren.bank.biz.transfer.service.**
+com.maclaren.bank.login.bean.**
+com.maclaren.bank.login.dao.**
+com.maclaren.bank.login.service.**
+com.maclaren.bank.login.web.**
+com.maclaren.bank.orga.bean.**
+com.maclaren.bank.orga.dao.**
+com.maclaren.bank.orga.service.**
+com.maclaren.bank.orga.web.**
+com.maclaren.bank.report.bean.**
+com.maclaren.bank.report.dao.**
+com.maclaren.bank.report.service.**
+com.maclaren.bank.report.web.**
+com.maclaren.bank.schedule.service.**
+com.maclaren.bank.staff.bean.**
+com.maclaren.bank.staff.dao.**
+com.maclaren.bank.staff.service.**
+com.maclaren.bank.staff.web.**
+com.maclaren.bank.util.**
+test.**
+</entry>
+<entry key="ProfilerCPUSettings_filter_value">com.maclaren.bank.auth.bean.*,
+com.maclaren.bank.auth.dao.*,
+com.maclaren.bank.auth.service.*,
+com.maclaren.bank.auth.web.*,
+com.maclaren.bank.biz.finance.bean.*,
+com.maclaren.bank.biz.finance.dao.*,
+com.maclaren.bank.biz.finance.service.*,
+com.maclaren.bank.biz.finance.web.*,
+com.maclaren.bank.biz.proxy.bean.*,
+com.maclaren.bank.biz.proxy.dao.*,
+com.maclaren.bank.biz.proxy.service.*,
+com.maclaren.bank.biz.proxy.web.*,
+com.maclaren.bank.biz.transfer.bean.*,
+com.maclaren.bank.biz.transfer.dao.*,
+com.maclaren.bank.biz.transfer.service.*,
+com.maclaren.bank.login.bean.*,
+com.maclaren.bank.login.dao.*,
+com.maclaren.bank.login.service.*,
+com.maclaren.bank.login.web.*,
+com.maclaren.bank.orga.bean.*,
+com.maclaren.bank.orga.dao.*,
+com.maclaren.bank.orga.service.*,
+com.maclaren.bank.orga.web.*,
+com.maclaren.bank.report.bean.*,
+com.maclaren.bank.report.dao.*,
+com.maclaren.bank.report.service.*,
+com.maclaren.bank.report.web.*,
+com.maclaren.bank.schedule.service.*,
+com.maclaren.bank.staff.bean.*,
+com.maclaren.bank.staff.dao.*,
+com.maclaren.bank.staff.service.*,
+com.maclaren.bank.staff.web.*,
+com.maclaren.bank.util.*,
+test.*</entry>
+<entry key="profiler.settings.istrument.getter.setter.methods">true</entry>
+<entry key="ProfilerMemorySettings_stacktraces">-1</entry>
+<entry key="myeclipse.profiling.mode">0</entry>
+</properties>

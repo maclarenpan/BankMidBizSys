@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="reverseAuth" type="com.maclaren.bank.auth.bean.ReverseAuth" />
+	<resultMap id="reverseAuthMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="auth_id" column="auth_id" />
+		<result property="operator_id" column="operator_id" />
+	</resultMap>
+	<select id="queryAllReverseAuth" parameterClass="java.util.Map"
+		resultClass="reverseAuth">
+		select
+			id,
+			role_id,
+			auth_id,
+			operator_id
+		from
+			reverseauth
+	</select>
+	<select id="queryAllReverseAuthByConditions" parameterClass="java.util.Map"
+		resultClass="reverseAuth">
+		select
+			id,
+			role_id,
+			auth_id,
+			operator_id
+		from
+			Reverseauth
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="role_id">
+				role_id = #role_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="auth_id">
+				auth_id = #auth_id#
+			</isNotEmpty>
+	</select>
+	<insert id="insertReverseAuth" parameterClass="java.util.Map">
+		insert into ReverseAuth
+			(
+				id,
+				role_id,
+				auth_id,
+				operator_id
+			)
+		values
+			(
+				seq_reverseauth.nextval,
+				#role_id#,
+				#auth_id#,
+				#operator_id#
+			)
+	</insert>
+	<delete id="deleteReverseAuth" parameterClass="java.util.Map">
+		delete from 
+			reverseAuth
+		where
+			id = #id#
+	</delete>
+	<update id="updateReverseAuth" parameterClass="java.util.Map">
+		update reverseAuth
+		set
+			role_id = #role_id#,
+			auth_id = #auth_id#
+		where
+			id = #id#
+	</update>
+</sqlMap>
+
+
+
+
+
+
+
+

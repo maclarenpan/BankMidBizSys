@@ -1,0 +1,1533 @@
+<html>
+<head>
+	<title>bankapp</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<link rel="stylesheet" type="text/css" href="../../extjs/examples/shared/example.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript" src="../../extjs/examples/shared/examples.js"></script>
+	<script type="text/javascript">
+		//这里centerPanel设为全局变量，不然addtab()找不到变量的！！！
+		var centerPanel;
+		Ext.Loader.setConfig({
+			enabled: true
+		});
+		Ext.Loader.setPath('Ext.ux', '../../extjs/examples/ux');
+		Ext.require([
+		  'Ext.form.*',
+		  'Ext.grid.*',
+		  'Ext.data.*',
+		  'Ext.util.*',
+		  'Ext.state.*',
+		  'Ext.window.MessageBox',
+		  'Ext.tip.QuickTipManager',
+		  'Ext.ux.CheckColumn',
+		  'Ext.chart.*',
+		  'Ext.layout.container.Fit',
+		  'Ext.ux.TabCloseMenu',
+		  '*'
+		]);
+		
+		//model define start
+		Ext.define('Operator', {
+			extends: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+					mapping: 'id'
+				},
+				'username',
+				'password',
+				'userType',
+				'address',
+				'linker',
+				'linkerPhone',
+				'role_id',
+				'status',
+				'createtime'
+			]
+		});
+		
+		Ext.define('operatorModel', {
+			extend : 'Ext.data.Model',
+			fields : [{
+					name : 'id',
+					type : 'int',
+					useNull : true
+				},
+				'username',
+				'password',
+				'userType',
+				'address',
+				'linker',
+				'linkerPhone',
+				'role_id',
+				'status',
+				'createtime'],
+			validations : [{
+					type : 'length',
+					field : 'password',
+					min : 1
+				}
+			]
+		});
+		
+		Ext.define('userTypeModel', {
+			extends : 'Ext.data.Model',
+			fields : [{
+				name: 'id', type:'int'
+				}, {
+				name: 'userTypeName', type: 'string'
+			}]
+		});
+		
+		Ext.define('roleModel', {
+			extends : 'Ext.data.Model',
+			fields : [{
+				name: 'id', type: 'int'
+			}, {
+				name: 'roleName', type: 'string'
+			}]
+		});
+		
+		Ext.define('statusModel', {
+			extends : 'Ext.data.Model',
+			fields : [{
+				name: 'id', type: 'int'
+			}, {
+				name: 'dictValeu', type: 'string'
+			}]
+		})
+		//model define end
+		
+		//other define start
+		var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
+			clicksToMoveEditor: 1,
+			autoCancel: false
+		});
+		//other define end
+		
+		//store define start
+		
+		var personStore = Ext.create('Ext.data.Store', {
+				model : 'operatorModel',
+				autoLoad : true,
+				autoSync : true,
+				proxy : {
+					type : 'ajax',
+					api : {
+						read : 'app.php/users/view',
+						create : 'app.php/users/create',
+						update : 'app.php/users/update',
+						destroy : 'app.php/users/destroy'
+					},
+					reader : {
+						type : 'json',
+						successProperty : 'success',
+						root : 'data',
+						messageProperty : 'message'
+					},
+					writer : {
+						type : 'json',
+						writeAllFields : false,
+						root : 'data'
+					},
+					listeners : {
+						exception : function (proxy, response, operation) {
+							Ext.MessageBox.show({
+								title : 'REMOTE EXCEPTION',
+								msg : operation.getError(),
+								icon : Ext.MessageBox.ERROR,
+								buttons : Ext.Msg.OK
+							});
+						}
+					}
+				},
+				listeners : {
+					write : function (proxy, operation) {
+						if (operation.action == 'destroy') {
+							Ext.Msg.alert("destroy operation");
+						}
+						Ext.example.msg(operation.action, operation.resultSet.message);
+					}
+				}
+		});
+	
+		//store define start
+		//用户类型下拉框
+		
+		var userTypeComboStore = new Ext.data.Store({
+			fields: ['id', 'userTypeName'],
+			data: [{
+				"id": 1, "userTypeName": "admin"
+			}, {
+				"id": 2, "userTypeName": "root"
+			}, {
+				"id": 3, "userTypeName": "sa"
+			}]
+		});
+		
+		//角色下拉框
+		var roleComboStore = new Ext.data.Store({
+			fields: ['id', 'roleName'],
+			data: [{
+				"id": 1, "roleName": "admin"
+			}, {
+				"id": 2, "roleName": "root"
+			}, {
+				"id": 3, "roleName": "sa"
+			}]
+		});
+		
+		//操作员状态下拉框
+		var statusComboStore = new Ext.data.Store({
+			fields: ['id', 'dictValue'],
+			data: [{
+				"id": 1, "dictValue":"在职"
+			}, {
+				"id": 2, "dictValue":"离职"
+			}]
+		});
+		
+		//store define end
+		
+		//panel define start
+		Ext.define('Writer.Form', {
+			extend : 'Ext.form.Panel',
+			alias : 'widget.writerform',
+			requires : ['Ext.form.field.Text'],
+			id : 'operatorForm',
+			initComponent : function () {
+			
+				this.addEvents('create');
+				Ext.apply(this, {
+					activeRecord : null,
+					iconCls : 'icon-user',
+					frame : true,
+					title : '添加操作员',
+					defaultType : 'textfield',
+					bodyPadding : 2,
+					fieldDefaults : {
+						anchor : '100%',
+						labelAlign : 'right'
+					},
+					layout : {
+						type : 'table',
+						columns: 4
+					},
+					items : [{
+							fieldLabel : 'Username',
+							name : 'username',
+							allowBlank : false, 
+							width : 240
+						}, {
+							fieldLabel : 'Password',
+							name : 'password',
+							allowBlank : false,
+							width : 240
+						}, {
+							fieldLabel : 'UserType',
+							xtype: 'combo',
+							queryMode: 'local',
+							valueField: 'userTypeName',
+							displayField: 'userTypeName',
+							editable : false,
+							name : 'userType',
+							allowBlank : false,
+							width : 240,
+							store : userTypeComboStore
+						}, {
+							fieldLabel : 'CreateTime',
+							xtype : 'datefield', 
+							editable : false,
+							name : 'createtime',
+							allowBlank : true,
+							width : 240					
+						}, {
+							fieldLabel : 'Linker',
+							name : 'linker',
+							allowBlank : true,
+							width : 240
+						}, {
+							fieldLabel : 'LinkerPhone',
+							name : 'linkerPhone',
+							allowBlank : true,
+							width : 240
+						}, {
+							fieldLabel : 'Role',
+							xtype : 'combo',
+							queryMode: 'local',
+							valueField: 'roleName',
+							displayField: 'roleName',
+							editable : false,
+							name : 'role_id',
+							allowBlank : true,
+							width : 240,
+							store : roleComboStore
+						}, {
+							fieldLabel : 'status',
+							xtype : 'combo',
+							queryMode: 'local',
+							valueField: 'dictValue',
+							displayField: 'dictValue',
+							editable : false,
+							name: 'status',
+							allowBlank : false,
+							width : 240,
+							store : statusComboStore
+						}, {
+							fieldLabel : 'Address',
+							name : 'address',
+							allowBlank : true,
+							colspan : 3,
+							width : 720
+						}	
+					],
+					dockedItems : [{
+							xtype : 'toolbar',
+							dock : 'bottom',
+							ui : 'footer',
+							items : ['->', {
+									iconCls : 'icon-save',
+									itemId : 'save',
+									text : '保存',
+									disabled : true,
+									scope : this,
+									handler : this.onSave
+								}, {
+									iconCls : 'icon-user-add',
+									text : '新建',
+									scope : this,
+									handler : this.onCreate
+								}, {
+									iconCls : 'icon-reset',
+									text : '重置',
+									scope : this,
+									handler : this.onReset
+								}
+							]
+						}
+					]
+				});
+				this.callParent();
+			},
+			
+			setActiveRecord : function (record) {
+				this.activeRecord = record;
+				if (record) {
+					this.down('#save').enable();
+					this.getForm().loadRecord(record);
+				} else {
+					this.down('#save').disable();
+					this.getForm().reset();
+				}
+			},
+			
+			onSave : function () {
+				var active = this.activeRecord,
+				form = this.getForm();
+				
+				if (!active) {
+					return;
+				}
+				if (form.isValid()) {
+					form.updateRecord(active);
+					this.onReset();
+				}
+			},
+			
+			onCreate : function () {
+				var form = this.getForm();
+				
+				if (form.isValid()) {
+					this.fireEvent('create', this, form.getValues());
+					form.reset();
+				}
+				
+			},
+			
+			onReset : function () {
+				this.setActiveRecord(null);
+				this.getForm().reset();
+			}
+		});
+		
+		Ext.define('Writer.Grid', {
+			extend : 'Ext.grid.Panel',
+			alias : 'widget.writergrid',
+			
+			requires : [
+				'Ext.grid.plugin.CellEditing',
+				'Ext.form.field.Text',
+				'Ext.toolbar.TextItem'
+			],
+			
+			initComponent : function () {
+				
+				this.editing = Ext.create('Ext.grid.plugin.CellEditing');
+				Ext.apply(this, {
+					iconCls : 'icon-grid',
+					frame : true,
+					plugins : [this.editing],
+					dockedItems : [{
+							xtype : 'toolbar',
+							items : [{
+									iconCls : 'icon-add',
+									text : '添加',
+									scope : this,
+									handler : this.onAddClick
+								}, {
+									iconCls : 'icon-delete',
+									text : '删除',
+									disabled : false,
+									itemId : 'delete',
+									scope : this,
+									handler : this.onDeleteClick
+								}
+							]
+						}, {
+							weight : 2,
+							xtype : 'toolbar',
+							dock : 'bottom',
+							items : [{
+									xtype : 'tbtext',
+									text : '<b>@cfg</b>'
+								}, '|', {
+									text : '自动同步',
+									enableToggle : true,
+									pressed : true,
+									tooltip : 'When enabled, Store will execute Ajax requests as soon as a Record becomes dirty.',
+									scope : this,
+									toggleHandler : function (btn, pressed) {
+										this.store.autoSync = pressed;
+									}
+								}, {
+									text : '批量提交',
+									enableToggle : true,
+									pressed : true,
+									tooltip : 'When enabled, Store will batch all records for each type of CRUD verb into a single Ajax request.',
+									scope : this,
+									toggleHandler : function (btn, pressed) {
+										this.store.getProxy().batchActions = pressed;
+									}
+								}, {
+									text : '提交全部数据',
+									enableToggle : true,
+									pressed : false,
+									tooltip : 'When enabled, Writer will write *all* fields to the server -- not just those that changed.',
+									scope : this,
+									toggleHandler : function (btn, pressed) {
+										this.store.getProxy().getWriter().writeAllFields = pressed;
+									}
+								}
+							]
+						}, {
+							weight : 1,
+							xtype : 'toolbar',
+							dock : 'bottom',
+							ui : 'footer',
+							items : ['->', {
+									iconCls : 'icon-save',
+									text : '同步',
+									scope : this,
+									handler : this.onSync
+								}
+							]
+						}, {
+							xtype : 'pagingtoolbar',
+							store : personStore, 
+							dock : 'bottom',
+							displayInfo : true
+						}
+					],
+					columns : [{
+							text : 'Id',
+							width : 40,
+							sortable : true,
+							dataIndex : 'id'
+						}, {
+							header : 'Username',
+							width : 100,
+							sortable : true,
+							dataIndex : 'username',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'Password',
+							width : 100,
+							sortable : true,
+							dataIndex : 'password',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'UserType',
+							width : 100,
+							sortable : true,
+							dataIndex : 'userType',
+							field : {
+								type : 'textfield'
+							}
+						},{
+							header : 'Linker',
+							width : 100,
+							sortable : true,
+							dataIndex : 'linker',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'LinkerPhone',
+							width: 100,
+							sortable : true,
+							dataIndex : 'linkerPhone',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'Role',
+							width: 100,
+							sortable : true,
+							dataIndex : 'role_id',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'Status',
+							width: 100,
+							sortable : true,
+							dataIndex : 'status',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'CreateTime',
+							width: 100,
+							sortable : true,
+							dataIndex : 'createtime',
+							field : {
+								type : 'textfield'
+							}
+						}, {
+							header : 'Address',
+							flex : 1,//flex:1意味着不用指定列宽，剩下多少就制定多少
+							sortable : true,
+							dataIndex : 'address',
+							field : {
+								type : 'textfield'
+							}
+						}
+					]
+				});
+				this.callParent();
+				this.getSelectionModel().on('selectionchange', this.onSelectChange, this);
+			},
+			
+			onSelectChange : function (selModel, selections) {
+				this.down('#delete').setDisabled(selections.length === 0);
+			},
+			
+			onSync : function () {
+				this.store.sync();
+			},
+			
+			onDeleteClick : function () {
+				var selection = this.getView().getSelectionModel().getSelection()[0];
+				if (selection) {
+					this.store.remove(selection);
+				}
+			},
+			
+			onAddClick : function () {
+				var rec = new operatorModel({
+						id : '',
+						username : '',
+						password : '',
+						userType : '',
+						address : '',
+						linker : '',
+						linkerPhone : '',
+						role_id : '',
+						status : '',
+						createtime : ''
+					}),
+				edit = this.editing;
+				
+				edit.cancelEdit();
+				this.store.insert(0, rec);
+				edit.startEditByPosition({
+					row : 0,
+					column : 1
+				});
+			},
+			
+			test : function() {
+				Ext.Msg.alert("test method was call.");
+			}
+		});
+		//panel define end
+		
+		//Ext.menu.Menu1 start
+		var menu1 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu1',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : '人员信息管理',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : '内部客户信息管理',
+									group : 'theme',
+									handler : addInnerStaffTab
+								}, {
+									text : '外部客户信息管理(addTab)',
+									group : 'theme',
+									handler : addTab
+								}, {
+									text : '操作员信息管理',
+									group : 'theme',
+									handler : addTab2
+								}
+							]
+						}
+					}, {
+						text : '业务参数管理',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '交易限制配置',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'addTab3',
+									group : 'theme',
+									handler : addTab3
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '手续费率配置',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '文件格式接口',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '打印模板配置',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '权限管理',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						
+						text : '其他',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+		//Ext.menu.Menu1.end
+		
+		//Ext.menu.Menu2 start
+		var menu2 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu2',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : 'menu1',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						text : 'menu2',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+		//Ext.menu.Menu2.end
+		
+		//Ext.menu.Menu3 start
+		var menu3 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu3',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : 'menu1',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						text : 'menu2',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+		//Ext.menu.Menu3.end
+		
+		//Ext.menu.Menu4 start
+		var menu4 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu4',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : 'menu1',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						text : 'menu2',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+			
+		//Ext.menu.Menu4.end
+		
+		//Ext.menu.Menu5 start
+		var menu5 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu5',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : 'menu1',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						text : 'menu2',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+		//Ext.menu.Menu5 end
+		
+		//Ext.menu.Menu6 start
+		var menu6 = Ext.create('Ext.menu.Menu', {
+				id : 'mainMenu6',
+				style : {
+					overflow : 'visible' // For the Combo popup
+				},
+				items : [{
+						text : '版本',
+						menu : { // <-- submenu by nested config object
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}, {
+						text : '帮助',
+						menu : {
+							items : [
+								// stick any markup in a menu
+								{
+									text : 'submenu1',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu2',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu3',
+									group : 'theme',
+									handler : onItemCheck
+								}, {
+									text : 'submenu4',
+									group : 'theme',
+									handler : onItemCheck
+								}
+							]
+						}
+					}
+				]
+			});
+		//Ext.menu.Menu6 end
+		
+		//menu function start
+		function onItemClick(item) {
+			Ext.MessageBox.alert('Menu Click', 'You clicked the "{0}" menu item.', item.text);
+		}
+		
+		function onItemCheck(item, checked) {
+			Ext.MessageBox.alert('Item Check', 'You {1} the "{0}" menu item.', item.text, checked ? 'checked' : 'unchecked');
+		}
+		
+		function addInnerStaffTab() {
+			centerPanel.add({
+				title: '内部客户信息管理',
+				iconCls: 'tabs',
+				items: [
+					Ext.create('Ext.grid.Panel', {
+						store : operatorStore,
+						columns : [{
+								header : 'id',
+								dataIndex : 'id',
+								width: 100,
+								editor : {
+									// defaults to textfield if no xtype is supplied
+									allowBlank : false
+								}
+							}, {
+								header : 'username',
+								dataIndex : 'username',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'password',
+								dataIndex: 'password',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'userType_id',
+								dataIndex : 'userType_id',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'addresss',
+								dataIndex: 'address',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'linker',
+								dataIndex : 'linker',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'linkerPhone',
+								dataIndex: 'linkerPhone',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'role_id',
+								dataIndex : 'role_id',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'status',
+								dataIndex: 'status',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'createtime',
+								dataIndex : 'createtime',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}
+						],
+						width : 840,
+						maxWidth: 1000,
+						mixWidth: 840,
+						height : 600,
+						renderTo: 'centerArea',
+						margin: '10 0 0 0',
+						frame : true,
+						tbar : [{
+								text : 'Add Operator',
+								iconCls : 'employee-add',
+								handler : function () {
+									rowEditing.cancelEdit();
+									
+									// Create a record instance through the ModelManager
+									var r = Ext.ModelManager.create({
+											name : 'New Guy',
+											email : 'new@sencha-test.com',
+											start : new Date(),
+											salary : 50000,
+											active : true
+										}, 'Employee');
+									
+									store.insert(0, r);
+									rowEditing.startEdit(0, 0);
+								}
+							}, {
+								itemId : 'removeEmployee',
+								text : 'Remove Employee',
+								iconCls : 'employee-remove',
+								handler : function () {
+									var sm = grid.getSelectionModel();
+									rowEditing.cancelEdit();
+									store.remove(sm.getSelection());
+									sm.select(0);
+								},
+								disabled : true
+							}
+						],
+						plugins : [rowEditing],
+						listeners : {
+							'selectionchange' : function (view, records) {
+								grid.down('#removeEmployee').setDisabled(!records.length);
+							}
+						}
+					})
+				],
+				closable: true
+			}).show();
+		};
+		
+		function addTab() {
+			centerPanel.add({
+				title : 'New Tab ',
+				iconCls : 'tabs',
+				items: [
+					Ext.create('Ext.grid.Panel', {
+						store : operatorStore,
+						columns : [{
+								header : 'id2',
+								dataIndex : 'id',
+								width: 100,
+								editor : {
+									// defaults to textfield if no xtype is supplied
+									allowBlank : false
+								}
+							}, {
+								header : 'username',
+								dataIndex : 'username',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'password',
+								dataIndex: 'password',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'userType_id',
+								dataIndex : 'userType_id',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'addresss',
+								dataIndex: 'address',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'linker',
+								dataIndex : 'linker',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'linkerPhone',
+								dataIndex: 'linkerPhone',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'role_id',
+								dataIndex : 'role_id',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}, {
+								header: 'status',
+								dataIndex: 'status',
+								width: 100,
+								editor: {
+									allowBlank: false
+								}
+							}, {
+								header : 'createtime',
+								dataIndex : 'createtime',
+								width : 100,
+								editor : {
+									allowBlank : false,
+								}
+							}
+						],
+						width : 840,
+						maxWidth: 1000,
+						mixWidth: 840,
+						height : 600,
+						renderTo: 'centerArea',
+						margin: '10 0 0 0',
+						title : '操作员信息管理',
+						frame : true,
+						tbar : [{
+								text : 'Add Operator',
+								iconCls : 'employee-add',
+								handler : function () {
+									rowEditing.cancelEdit();
+									
+									// Create a record instance through the ModelManager
+									var r = Ext.ModelManager.create({
+											name : 'New Guy',
+											email : 'new@sencha-test.com',
+											start : new Date(),
+											salary : 50000,
+											active : true
+										}, 'Employee');
+									
+									store.insert(0, r);
+									rowEditing.startEdit(0, 0);
+								}
+							}, {
+								itemId : 'removeEmployee',
+								text : 'Remove Employee',
+								iconCls : 'employee-remove',
+								handler : function () {
+									var sm = grid.getSelectionModel();
+									rowEditing.cancelEdit();
+									store.remove(sm.getSelection());
+									sm.select(0);
+								},
+								disabled : true
+							}
+						],
+						plugins : [rowEditing],
+						listeners : {
+							'selectionchange' : function (view, records) {
+								grid.down('#removeEmployee').setDisabled(!records.length);
+							}
+						}
+					})
+				],
+				closable: true
+			}).show();
+		};
+		
+		function addTab2(){
+			centerPanel.add({
+				title: '操作员管理',
+				iconCls: 'tabs',
+				items: [
+				//这里一定要使用Ext.form.Panel，而不要使用Ext.grid.Panel
+					Ext.create('Ext.form.Panel', {
+						width: 1005,
+						height: 800,
+						margin: '0 0 0 0',
+						layout : {
+							type : 'vbox',
+							align : 'stretch'
+						},
+						items: [
+							{
+								itemId : 'grid',
+								xtype : 'writergrid',//这里是根据前面的别名widget.writegrid
+								title : '操作员列表',
+								flex : 1,
+								height : 600,
+								store : personStore,
+								listeners : {
+									selectionchange : function (selModel, selected) {
+									//	Ext.Msg.alert("before");
+									//	Ext.getCmp('operatorForm').test();
+									Ext.getCmp('operatorForm').setActiveRecord(selected[0] || null);
+									//	Ext.getCmp('operatorForm').setActiveRecord(selected[0] || null);
+										//main.child('#form').setActiveRecord(selected[0] || null);
+										//Ext.Msg.alert("after");
+									}
+								}
+							}, {
+								itemId : 'form',
+								xtype : 'writerform',
+								height : 200,
+								listeners : {
+									create : function (form, data) {
+										personStore.insert(0, data);
+									}
+								}
+							}
+						]
+					})
+				],
+				closable: true
+			}).show();
+		};
+		
+		function addTab3(){
+			centerPanel.add({
+				title: 'tab3',
+				iconCls: 'tabs',
+				items: [],
+				closable: true
+			}).show();
+		};
+		//menu function end
+		
+		
+				
+		Ext.onReady(function () {
+			var currentItem;
+			Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+			
+			//tabpanel start
+			centerPanel = Ext.createWidget('tabpanel', {
+				title : 'centerPanel',
+				region : 'center',
+				id : 'centerPanel',
+				resizeTabs : true,
+				enableTabScroll : true,
+				width : 1280,
+				height : 850,//这个height一定要设够，不然tab内的东西会出现在上面
+				margin: '0 0 0 0',
+				default: {
+					autoScroll : true,
+					bodyPadding : 10
+				},
+				plugins : Ext.create('Ext.ux.TabCloseMenu', {
+					extraItemsTail : [
+						'-', {
+							text : 'Closable',
+							checked : true,
+							handler : function (item) {
+								currentItem.tab.setClosable(item.checked);
+							}
+						}
+					],
+					listeners : {
+						aftermenu : function () {
+							currentItem = null;
+						},
+						beforemenu : function () {
+							var menuitem = menu.child('*[text="Closable"]');
+							currentItem = item;
+							menuitem.setChecked(item.closable);
+						}
+					}
+				})
+			});
+			//tabpanel end
+			//Ext.Viewport start		
+			var mainViewport = Ext.create('Ext.Viewport', {
+					layout : {
+						type : 'border',
+						padding : 5
+					},
+					defaults : {
+						split : true
+					},
+					items : [{
+							region : 'west',
+							collapsible : true,
+							title : 'Starts at width 15%',
+							split : true,
+							width : '15%',
+							html : 'west<br>I am floatable'
+						}, {
+							region : 'center',
+							items: [
+								centerPanel
+							]
+						},{
+							region : 'east',
+							collapsible : true,
+							floatable : true,
+							split : true,
+							width : 100,
+							title : 'East',
+							layout : {
+								type : 'vbox',
+								padding : 5,
+								align : 'stretch'
+							},
+							items : [{
+									xtype : 'textfield',
+									fieldLabel : 'Text field'
+								}, {
+									xtype : 'component',
+									html : 'I am floatable'
+								}
+							]
+						}
+					]
+				});
+				//Ext.viewport end
+				
+				//Ext.toolbar.Toolbar start
+				var toolbar = Ext.create('Ext.toolbar.Toolbar', {
+					    renderTo : 'toolbar',
+					    width : 1280,
+						height : 30,
+					    items: [
+					        {
+								text: '后台管理',
+								iconCls: 'bmenu', 
+					            menu: menu1
+					        }, {
+								text: '柜面交易',
+								iconCls: 'bmenu',
+					            menu: menu2
+					        }, {
+								text: '渠道接入',
+								iconCls: 'bmenu',
+								menu: menu3
+							}, {
+								text: '自动化服务',
+								iconCls: 'bmenu',
+								menu: menu4
+							}, {
+								text: '报表查询统计',
+								iconCls: 'bmenu',
+								menu: menu5
+							
+							}, {
+								text: '关于',
+								iconCls: 'bmenu',
+								menu: menu6
+							},'->', {
+								xtype : 'textfield',
+								name : 'field1',
+								emptyText : 'enter search term'
+							}
+						]
+				});
+				//Ext.toolbar.Toolbar end	
+		});
+	</script>
+</head>
+<body>
+	<div id="toolbar"></div>
+	<div id="centerArea"></div>
+	<div id="editor-grid"></div>
+
+</body>
+</html>

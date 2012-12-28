@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finance">
+	<typeAlias alias="exchangeRate" type="com.maclaren.bank.biz.finance.bean.ExchangeRate" />
+	<typeAlias alias="currencyType" type="com.maclaren.bank.biz.finance.bean.CurrencyType" />
+	<typeAlias alias="currencyTypeCombo" type="com.maclaren.bank.biz.finance.bean.CurrencyTypeCombo" />
+	<resultMap id="exchangeRateMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="currencyType1_id" column="currencyType1_id" />
+		<result property="currencyType2_id" column="currencyType2_id" />
+		<result property="rate" column="rate" />
+	</resultMap>
+	<select id="getCurrencyTypeCombo" resultClass="currencyTypeCombo">
+		select 
+			id currencyType_id,
+			currencyName currencyTypeName
+		from 
+			acc_currencytype
+		where
+			status = 1
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finance">
+	<typeAlias alias="yield" type="com.maclaren.bank.biz.finance.bean.Yield" />
+	<typeAlias alias="bankTotalAmount" type="com.maclaren.bank.biz.finance.bean.BankTotalAmount" />
+	<resultMap id="exchangeRateMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="service_id" column="service_id" />
+		<result property="percent" column="percent" />
+		<result property="amount" column="amount" />
+	</resultMap>
+	<select id="queryAllYield" parameterClass="java.util.Map"
+		resultClass="yield">
+		select
+			a.id,
+			a.subbank_id bank_id,
+			a.service_id,
+			a.percent,
+			a.amount
+		from
+			acc_serviceyield a
+	</select>
+	<select id="queryYieldByConditions" parameterClass="java.util.Map"
+		resultClass="yield">
+		select 
+			a.id,
+			a.subank_id bank_id,
+			a.service_id,
+			a.percent,
+			a.amount
+		from 
+			acc_serviceyield a
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="bank_id">
+				a.subbank = #bank_id#
+			</isNotEmpty>		
+			<isNotEmpty prepend="and" property="service_id">
+				a.service_id = #service_id#
+			</isNotEmpty>
+	</select>
+	<insert id="addYield" parameterClass="yield">
+		insert into acc_exchangerate(
+			service_id,
+			percent,
+			amount
+		)
+		values(
+			#service_id#,
+			#percent#,
+			#amount#
+		)
+	</insert>
+	<update id="updateYield" parameterClass="yield">
+		update acc_exchangerate set
+			service_id = #service_id#,
+			percent = #percent#,
+			amount = #amount#
+		where 
+			id = #id#
+	</update>
+	<delete id="delYield" parameterClass="yield">
+		delete from 
+			acc_serviceyield
+		where 
+			id = #id#
+	</delete>
+	<select id="getAllBankTotalAmount" resultClass="bankTotalAmount">
+		select 
+			id,
+			currencyType_id,
+			subbank_id bank_id,
+			amount,
+			modifytime
+		from 
+			acc_subbanktotalamount
+	</select>
+	<select id="getBankTotalAmountByConditions" parameterClass="java.util.Map" 
+		resultClass="bankTotalAmount">
+		select 
+			id,
+			currencyType_id,
+			subbank_id bank_id,
+			amount,
+			modifytime
+		from 
+			acc_subbanktotalamount
+		where
+			1 = 1
+			<isNotEmpty prepend="AND" property="bank_id">
+				subbank_id = #bank_id#
+		 	</isNotEmpty>			 	
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

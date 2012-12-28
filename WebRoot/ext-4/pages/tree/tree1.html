@@ -1,0 +1,37 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){
+	var root=new Ext.tree.TreeNode({
+		id:"root",
+		text:"树的根"});
+	var c1=new Ext.tree.TreeNode({
+		id:"c1",		
+		text:"子节点"
+	});
+	root.appendChild(c1);
+	var tree=new Ext.tree.TreePanel({
+		renderTo:"hello",
+		root:root,
+		width:100
+	});
+	tree.on("click",function(node,event){
+		alert("您点击了"+node.text);
+	}
+	);
+	c1.on("click",function(node,event){
+		alert("您点击了"+node.text);
+	}
+	);
+	
+ });
+
+	</script>
+</head>
+<body>
+	<div id="hello"></div>
+</body>
+</html>

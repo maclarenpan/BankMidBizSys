@@ -1,0 +1,78 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+	Ext.require(['*']);
+	Ext.onReady(function(){
+		Ext.QuickTips.init();
+		var menu = Ext.create('Ext.menu.Menu', {
+            width: 100,
+            height: 100,
+            margin: '0 0 10 0',
+            floating: false,  // usually you want this set to True (default)
+            renderTo: Ext.getBody(),  // usually rendered by it's containing component
+            items: [{                        
+                    text: 'regular item 1'        
+				},{
+					text: 'regular item 2'
+				},{
+                    text: 'regular item 3'  
+				}]
+		}); 
+		var tb = Ext.create('Ext.toolbar.Toolbar');
+		tb.suspendLayout = true;
+		tb.render('toolbar');
+		tb.add({
+			text: 'Button',
+			iconCls: 'menu',
+			menu: menu
+		}, {
+			text: 'Users',
+            iconCls: 'user',
+            menu: {
+                xtype: 'menu',
+                plain: true,
+                items: {
+                    xtype: 'buttongroup',
+                    title: 'User options',
+                    columns: 2,
+                    defaults: {
+                        xtype: 'button',
+                        scale: 'large',
+                        iconAlign: 'left'
+                    },
+                    items: [{
+                        text: 'User<br/>manager',
+                        iconCls: 'edit',
+                        width: 90
+                    },{
+                        iconCls: 'add',
+                        width: 'auto',
+                        tooltip: 'Add user',
+                        width: 40
+                    },{
+                        colspan: 2,
+                        text: 'Import',
+                        scale: 'small',
+                        width: 130
+                    },{
+                        colspan: 2,
+                        text: 'Who is online?',
+                        scale: 'small',
+                        width: 130
+                    }]
+                }
+            }
+			
+		});
+	});
+	</script>
+</head>
+<body>
+	   <div id="container">
+			<div id="toolbar"></div>
+		</div>
+</body>
+</html>

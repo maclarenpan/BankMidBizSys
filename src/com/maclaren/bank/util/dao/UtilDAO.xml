@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="util">
+	<typeAlias alias="unit" type="com.maclaren.bank.util.bean.Unit" />
+	<typeAlias alias="unit2unit" type="com.maclaren.bank.util.bean.Unit2Unit" />
+	<typeAlias alias="exchangeRate" type="com.maclaren.bank.biz.finance.bean.ExchangeRate" />
+	<resultMap id="UnitMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="unitName" column="unitName" />
+	</resultMap>
+	<select id="queryAllUnit" parameterClass="java.util.Map"
+		resultClass="unit">
+		select
+			id unit_id,
+			unitName
+		from
+			unit
+	</select>
+	<select id="queryUnitByConditions" parameterClass="java.util.Map"
+		resultClass="unit">
+		select
+			id unit_id,
+			unitName
+		from
+			unit
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="unitName">
+				<![CDATA[unitName like '%$unitName$%']]>
+			</isNotEmpty>
+	</select>
+	<insert id="addUnit" parameterClass="java.util.Map">
+		insert into unit(
+			id,
+			unitName
+		)
+		values(
+			seq_unit.nextval,
+			#unitName#
+		)
+	</insert>
+	<update id="updateUnit" parameterClass="java.util.Map">
+		update unit set
+			unitName = #unitName#
+		where 
+			id = #unit_id#
+	</update>
+	<delete id="delUnit" parameterClass="java.util.Map">
+		delete from 
+			unit 
+		where 
+			id = #unit_id#
+	</delete>
+	<select id="queryAllUnit2Unit" resultClass="unit2unit">
+		select
+			id,
+			unit1_id,
+			unit2_id,
+			rate
+		from 	
+			unit_unit
+	</select>
+	<select id="queryUnit2UnitByConditions" parameterClass="java.util.Map"
+		resultClass="unit2unit">
+		select
+			id,
+			unit1_id,
+			unit2_id,
+			rate
+		from
+			unit_unit
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="unit1_id">
+				<![CDATA[unit1_id = #unit1_id#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="unit2_id">
+				<![CDATA[unit2_id = #unit2_id#]]>
+			</isNotEmpty>
+	</select>
+	<insert id="addUnit2Unit" parameterClass="java.util.Map">
+		insert into unit2unit(
+			id,
+			unit1_id,
+			unit2_id,
+			rate
+		)
+		values(
+			seq_unit2unit.nextval,
+			#unit1_id#,
+			#unit2_id#,
+			#rate#
+		)
+	</insert>
+	<update id="updateUnit2Unit" parameterClass="java.util.Map">
+		update unit2unit set
+			unit1_id = #unit1_id#,
+			unit2_id = #unit2_id#,
+			rate = #rate#
+		where 
+			id = #id#
+	</update>
+	<delete id="delUnit2Unit" parameterClass="java.util.Map">
+		delete from 
+			unit_unit 
+		where 
+			id = #id#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+

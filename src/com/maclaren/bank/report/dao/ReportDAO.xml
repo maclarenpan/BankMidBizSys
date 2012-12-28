@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="report">
+	<typeAlias alias="report" type="com.maclaren.bank.report.bean.Report" />
+	<resultMap id="serverMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="service_id" column="service_id" />
+		<result property="amount" column="amount" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="totalServiceMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="amount" column="amount" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="assertMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="assertType_id" column="assertType_id" />
+		<result property="amount" column="amount" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="assertInc" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="assertType_id" column="assertType_id" />
+		<result property="incAmount" column="incAmount" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="assertTotal" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="totalAmount" column="totalAmount" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="userMapping" class="user" >
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="phone" column="phone" />
+		<result property="gender" column="gender" />
+		<result property="birthday" column="birthday" />
+		<result property="linker" column="linker" />
+		<result property="linkerPhone" column="linkerPhone" />
+		<result property="address" column="address" />
+		<result property="createtime" column="createtime" />
+		<result property="modifytime" column="modifytime" />
+		<result property="jobrank" column="jobrank" />
+		<result property="remark" column="remark" />
+	</resultMap>
+	<select id="queryServiceReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		SELECT
+			to_char(createtime,'mm') as name,
+			amount as data
+		FROM 
+			ACC_REPO_SUBBANK_SERVICE
+		WHERE
+			1 = 1
+			<isNotEmpty prepend="and" property="service_id">
+			service_id = #service_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subbank_id">
+			subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'mm') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'mm') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+	<select id="queryServiceTotalReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		SELECT 
+			to_char(createtime,'mm') as name,
+			amount as data
+		FROM 
+			acc_repo_subbank_service_totalamount
+		WHERE 
+			1 = 1
+			<isNotEmpty prepend="and" property="subbank_id">
+			subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'yyyy') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'yyyy') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+
+	<select id="queryServiceIncReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		select 
+			to_char(createtime,'mm') as name,
+			amount as data
+		from 
+			acc_repo_subbank_service_inc
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="service_id">
+				service_id = #service_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subbank_id">
+				subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'yyyy') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'yyyy') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+	
+	<select id="queryAssertReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		select
+			to_char(createtime,'mm') as name,
+			amount as data
+		from	
+			acc_repo_subbank_assert
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="assertType_id">
+			assertType_id = #assertType_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subbank_id">
+			subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'mm') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'mm') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+	
+	
+	<select id="queryAssertIncReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		select 
+			to_char(createtime,'mm') as name,
+			amount as data
+		from 
+			acc_repo_subbank_assert_inc
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="assertType_id">
+			assertType_id = #assertType_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subbank_id">
+			subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'mm') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'mm') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+	
+	<select id="queryTotalAssertReportByConditions" parameterClass="java.util.Map"
+		resultClass="report">
+		select 
+			to_char(createtime,'mm') as name,
+			amount as data
+		from 
+			acc_repo_subbank_assert_totalamount
+		where
+			1 = 1
+			<isNotEmpty prepend="and" property="subbank_id">
+			subbank_id = #subbank_id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startYear">
+				<![CDATA[to_char(createtime,'yyyy') >= #startYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endYear">
+				<![CDATA[to_char(createtime,'yyyy') <= #endYear#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startMonth">
+				<![CDATA[to_char(createtime,'mm') >= #startMonth#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endMonth">
+				<![CDATA[to_char(createtime,'mm') <= #endMonth#]]>
+			</isNotEmpty>
+		order by name
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

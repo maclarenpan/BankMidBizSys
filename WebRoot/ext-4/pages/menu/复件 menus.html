@@ -1,0 +1,155 @@
+<html>
+<head>
+	<title>Menu</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript" src="../../extjs/examples/shared/example.js"></script>
+	<script type="text/javascript" src="../../extjs/examples/shared/states.js"></script>
+	<script type="text/javascript">
+	Ext.require(['*']);
+
+// TODO: The "Users" menu containing buttons is completely screwed: ButtonGroup needs work.
+
+	Ext.onReady(function(){
+    Ext.QuickTips.init();
+
+	var menu2 = Ext.create('Ext.menu.Menu', {
+		id: 'mainMenu2',
+		style: {
+			overflow: 'visible'
+		},
+		items: [
+			{
+				text: 'menu1',
+				menu: {
+					items: [
+						{
+							text: 'submenu1',
+							group: 'theme',
+							handler: onItemClick
+						}, {
+							text: 'submenu2',
+							group: 'theme',
+							handler: onItemClick
+						}, {
+							text: 'submenu3',
+							group: 'theme',
+							handler: onItemClick
+						}
+					]
+				}
+			}, {
+				text: 'menu2',
+				menu: {
+					items: [
+						{
+							text: 'submenu1',
+							group: 'theme',
+							handler: onItemClick
+						}, {
+							text: 'submenu2',
+							group: 'theme',
+							handler: onItemClick
+						}, {
+							text: 'submenu3',
+							group: 'theme',
+							handler: onItemClick
+						}
+					]
+				}
+			}
+		]
+	});
+    var menu = Ext.create('Ext.menu.Menu', {
+        id: 'mainMenu',
+        style: {
+            overflow: 'visible'     // For the Combo popup
+        },
+        items: [
+			{
+                text: 'menu1',
+                menu: {        // <-- submenu by nested config object
+                    items: [
+                        // stick any markup in a menu
+                        {
+                            text: 'submenu1',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu2',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu3',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu4',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }
+                    ]
+                }
+           }, {
+             
+				text: 'menu2',
+				menu: {
+					items: [
+                        // stick any markup in a menu
+                        {
+                            text: 'submenu1',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu2',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu3',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }, {
+                            text: 'submenu4',
+                            group: 'theme',
+                            handler: onItemCheck
+                        }
+                    ]
+			   }
+           }
+        ]
+    });
+	
+    var tb = Ext.create('Ext.toolbar.Toolbar');
+    tb.render('toolbar');
+    tb.add({
+            text: 'MainMenu1',
+            iconCls: 'bmenu',  // <-- icon
+            menu: menu  // assign menu by instance
+        }, {
+			
+			text: 'MainMenu2',
+			iconCls: 'bmenu',
+			menu: menu2
+		});
+    tb.suspendLayout = false;
+    tb.doLayout();
+	
+    function onItemClick(item){
+        Ext.MessageBox.alert('Menu Click', 'You clicked the "{0}" menu item.', item.text);
+    }
+
+    function onItemCheck(item, checked){
+        Ext.MessageBox.alert('Item Check', 'You {1} the "{0}" menu item.', item.text, checked ? 'checked' : 'unchecked');
+    }
+});
+
+</script>
+</head>
+<body>
+    <div id="container">
+        <div id="toolbar"></div>
+    </div>
+    
+    <br /><br /><br /><br /><br />
+</body>
+</html>

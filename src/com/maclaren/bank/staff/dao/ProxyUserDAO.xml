@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="staff">
+	<typeAlias alias="proxyUser" type="com.maclaren.bank.staff.bean.ProxyUser" />
+	<typeAlias alias="proxyUserType" type="com.maclaren.bank.staff.bean.ProxyUserType" />
+	<resultMap id="proxyUserMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="account_id" column="account_id" /> 
+		<result property="proxyUserType_id" column="proxyUserType_id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="linker" column="linker" />
+		<result property="linkerPhone" column="linkerPhone" />
+		<result property="phone" column="phone" />
+		<result property="address" column="address" />
+		<result property="creditLevel" column="creditLevel" />
+		<result property="status" column="status" />
+		<result property="createtime" column="createtime" />
+	</resultMap>
+	<resultMap id="proxyUserTypeMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="proxyUserTypeName" column="proxyUserTypeName" />
+	</resultMap>
+	<select id="queryAllProxyUser" parameterClass="java.util.Map"
+		resultClass="proxyUser">
+		select
+			a.id,
+			a.account_id,
+			a.proxyUserType_id,
+			b.proxyUserTypeName,
+			a.username,
+			a.password,
+			a.linker,
+			a.linkerPhone,
+			a.phone,
+			a.address,
+			a.creditLevel,
+			a.status as proxyUserStatus_id,
+			c.dictValue as proxyUserStatusName,
+			a.createtime
+		from
+			proxyUser a, proxyUserType b, dict c
+		where 
+			a.proxyUserType_id = b.id and
+			a.status = c.dictName
+	</select>
+	<select id="queryAllProxyUserType" parameterClass="java.util.Map"
+		resultClass="proxyUserType">
+		select 
+			id proxyUserType_id,
+			proxyUserTypeName
+		from 
+			proxyUserType
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

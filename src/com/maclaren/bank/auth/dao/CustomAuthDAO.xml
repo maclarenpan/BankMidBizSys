@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="auth">
+	<typeAlias alias="customAuth" type="com.maclaren.bank.auth.bean.CustomAuth" />
+	<resultMap id="customMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="auth_id" column="auth_id" />
+		<result property="operator_id" column="operator_id" />
+	</resultMap>
+	<select id="queryAllCustomAuth" parameterClass="java.util.Map"
+		resultClass="customAuth">
+		select
+			id,
+			auth_id,
+			operator_id
+		from
+			customauth
+	</select>
+	
+	<select id="queryCustomAuthByConditions" parameterClass="java.util.Map"
+		resultClass="customAuth">
+		SELECT 
+			id,
+			auth_id,
+			operator_id
+		 FROM 
+		 	customauth
+		 where	
+			1 = 1
+		 <isNotEmpty prepend="AND" property="auth_id">
+		 	auth_id = #auth_id#
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="operator_id">
+		 	operator_id = #operator_id#
+		 </isNotEmpty>
+	</select>
+	
+	<insert id="insertCustomAuth" parameterClass="java.util.Map">
+		insert into customauth
+			(
+				id,
+				auth_id,
+				opreator_id
+			)
+		values
+			(
+				seq_customauth.nextval,
+				#auth_id#,
+				#operator_id#
+			)
+	</insert>
+	
+	<delete id="deleteCustomAuth" parameterClass="string">
+		delete from 
+			customauth
+		where
+			id = #id#
+	</delete>
+	<update id="updateCustomAuth" parameterClass="java.util.Map">
+		update customauth
+		set
+			auth_id = #auth_id#,
+			operator_id = #opreator_id#
+		where
+			id = #id#
+	</update>
+</sqlMap>
+
+
+
+
+
+
+
+

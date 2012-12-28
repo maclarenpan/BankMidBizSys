@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="login">
+	<typeAlias alias="operator" type="com.maclaren.bank.login.bean.Operator" />
+	<select id="queryAllOperator" resultClass="operator" parameterClass="java.util.Map">
+	<![CDATA[]]>
+		SELECT 
+			a.id,
+			a.username,
+			a.password,
+			a.userType_id,
+			c.userTypeName,
+			a.address,
+			a.linker,
+			a.linkerPhone,
+			a.role_id,
+			b.roleName,
+			a.status,
+			a.createtime		
+		 FROM operator a, role b, userType c 
+		 where	
+		 	a.role_id = b.id and
+		 	a.userType_id = c.id
+		 order by createtime desc	 	
+	</select>
+	<select id="queryOperatorByConditions" resultClass="operator" parameterClass="java.util.Map">
+		SELECT 
+			a.id,
+			a.username,
+			a.password,
+			a.userType_id,
+			c.userTypeName,
+			a.address,
+			a.linker,
+			a.linkerPhone,
+			a.role_id,
+			b.roleName,
+			a.status,
+			a.createtime		
+		 FROM operator a, role b, userType c 
+		 where	
+		 	a.role_id = b.id and
+		 	a.userType_id = c.id
+		 <isNotEmpty prepend="AND" property="username">
+		 <![CDATA[a.username like '%#username#%']]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="role_id">
+		 <![CDATA[b.role_id = #role_id#]]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="userType_id">
+		 <![CDATA[c.userType_id = #userType_id#]]>
+		 </isNotEmpty>
+		  <isNotEmpty prepend="AND" property="startTime">
+		 <![CDATA[a.createtime > #startTime#]]>
+		 </isNotEmpty>
+		  <isNotEmpty prepend="AND" property="endTime">
+		 <![CDATA[a.createtime < #endTime#]]>
+		 </isNotEmpty>
+		 order by createtime desc	
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

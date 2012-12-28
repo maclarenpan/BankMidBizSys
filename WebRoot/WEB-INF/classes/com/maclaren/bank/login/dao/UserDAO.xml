@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="login">
+	<typeAlias alias="user" type="com.maclaren.bank.login.bean.User" />
+	<resultMap id="userMapping" class="user" >
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="phone" column="phone" />
+		<result property="gender" column="gender" />
+		<result property="birthday" column="birthday" />
+		<result property="linker" column="linker" />
+		<result property="linkerPhone" column="linkerPhone" />
+		<result property="address" column="address" />
+		<result property="createtime" column="createtime" />
+		<result property="modifytime" column="modifytime" />
+		<result property="jobrank" column="jobrank" />
+		<result property="remark" column="remark" />
+	</resultMap>
+	<select id="getAllUser" resultClass="user" parameterClass="string">
+		SELECT 
+			ID,
+			USERNAME,
+			PASSWORD,
+			PHONE,
+			GENDER,
+			BIRTHDAY,
+			LINKER,
+			LINKERPHONE,
+			ADDRESS,
+			CREATETIME,
+			MODIFYTIME,
+			JOBRANK,
+			REMARK			
+		 FROM BANKUSER
+	</select>
+	<select id="checkUser" resultClass='user' parameterClass="user">
+		SELECT 
+			ID,
+			USERNAME,
+			PASSWORD,
+			PHONE,
+			GENDER,
+			BIRTHDAY,
+			LINKER,
+			LINKERPHONE,
+			ADDRESS,
+			CREATETIME,
+			MODIFYTIME,
+			JOBRANK,
+			REMARK			
+		FROM
+			BANKUSER
+		WHERE
+			USERNAME = #username# 
+			AND PASSWORD = #password#
+		
+	</select>
+	<select id="selectUserByName" resultClass="user" parameterClass="string">
+		SELECT 
+			USERNAME,
+			PASSWORD,
+			PHONE,
+			GENDER,
+			BIRTHDAY,
+			LINKER,
+			LINKERPHONE,
+			ADDRESS,
+			CREATETIME,
+			MODIFYTIME,
+			JOBRANK,
+			REMARK
+		FROM BANKUSER
+		WHERE
+			USERNAME = #username#
+	</select>
+	<insert id="insertUser" parameterClass="user">
+		INSERT INTO BANKUSER (
+			USERNAME,
+			PASSWORD,
+			PHONE,
+			GENDER,
+			BIRTHDAY,
+			LINKER,
+			LINKERPHONE,
+			ADDRESS,
+			CREATETIME,
+			MODIFYTIME,
+			JOBRANK,
+			REMARK)
+		VALUES (
+			#username#,
+			#password#,
+			#phone#,
+			#gender#,
+			#birthday#,
+			#linker#,
+			#linkerPhone#,
+			#address#,
+			#createtime#,
+			#modifytime#,
+			#jobrank#,
+			#remark#
+		)
+	</insert>
+	<update id="updateUser" parameterClass="user">
+		UPDATE BANKUSER SET
+		PASSWORD = #password#,
+		PHONE = #phone#,
+		GENDER = #gender#,
+		BIRTHDAY = #birthday#,
+		LINKER = #linker#,
+		LINKERPHONE = #linkerPhone#,
+		ADDRESS = #address#,
+		CREATETIME = #createtime#,
+		MODIFYTIME = #modifytime#,
+		JOBRANK = #jobrank#,
+		REMARK = #remark#
+		WHERE
+		USERNAME = #username#
+	</update>
+	<delete id="deleteUser" parameterClass="user">
+		DELETE FROM BANKUSER
+		WHERE
+			ID = #id#
+	</delete>
+	<select id="test">
+		select * from auth
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

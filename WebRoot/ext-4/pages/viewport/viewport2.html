@@ -1,0 +1,115 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		/**
+ * 
+ * book management index page
+ * 
+ * 
+ */
+
+Ext.onReady(function() {
+
+    /*
+     * Tree menu
+     */
+    Ext.BLANK_IMAGE_URL = '../ext/resources/images/default/s.gif';
+    var root = new Ext.tree.TreeNode();
+
+    function displayTab(node, event) {
+        if (node.isLeaf()) {
+            var nodeId = node.id;
+            var item = mainPanel.getItem('tab_' + nodeId);
+            if (item) {
+                mainPanel.setActiveTab(item);
+            } else {
+                var index = mainPanel.items.length + 1;
+                var tabPage = mainPanel.add({
+                            title : node.text,
+                            id : 'tab_' + node.id,
+                            autoLoad : node.attributes.url,
+                            closable : true,
+                            scripts : true
+                        });
+                mainPanel.setActiveTab(tabPage);
+            }
+        }
+    }
+
+    var node_bookType = new Ext.tree.TreeNode({
+                id : 'nodeBookType',
+                text : '书籍类型维护',
+                url : 'ajax1.htm',
+                leaf : true,
+                listeners : {
+                    'click' : displayTab
+                }
+            });
+    var node_book = new Ext.tree.TreeNode({
+                text : '书籍维护',
+                id : 'nodeBook',
+                url : 'ajax1.htm',
+                leaf : true,
+                listeners : {
+                    click : displayTab
+                }
+            });
+    root.appendChild(node_bookType);
+    root.appendChild(node_book);
+
+    var menu = new Ext.tree.TreePanel({
+                border : false,
+                root : root,
+                // rootVisible : false,
+                hrefTarget : 'tabpanel'
+            });
+
+    /*
+     * ViewPort Layout
+     */
+    new Ext.Viewport({
+        layout : 'border',
+        items : [{
+                    title : '简易书籍管理系统ExtJS版',
+                    region : 'north',
+                    collapsible : true,
+                    // frame : true,
+                    height : 100,
+                    html : '<br/><center><font size="6">简单书籍管理系统</font></center>'
+                }, {
+                    title : '功能菜单',
+                    region : 'west',
+                    // frame : true,
+                    items : menu,
+                    split : true, // 间隔条
+                    collapsible : true,
+                    width : 150
+                }, {
+                    region : 'center',
+                    xtype : 'tabpanel',
+                    id : 'tabPanel',
+                    activeTab : 0,
+                    frame : true,
+                    items : [{
+                                title : 'tab01',
+                                autoLoad : 'ajax1.htm'
+                            }, {
+                                title : 'tab02',
+                                closable : true,
+                                autoLoad : 'ajax1.htm'
+                            }]
+                }]
+    });
+
+    var mainPanel = Ext.getCmp('tabPanel');
+
+});
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

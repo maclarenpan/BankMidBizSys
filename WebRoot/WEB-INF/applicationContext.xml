@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation=" 
+          http://www.springframework.org/schema/beans 
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+          http://www.springframework.org/schema/tx 
+          http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+          http://www.springframework.org/schema/context 
+          http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+          http://www.springframework.org/schema/aop 
+          http://www.springframework.org/schema/aop/spring-aop-3.0.xsd" default-autowire="byName">
+    <import resource="schedule.xml" /> 
+    <import resource="classpath:org/codehaus/xfire/spring/xfire.xml" />
+    <import resource="webservice-workbech.xml" />
+	<!--<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"        
+        destroy-method="close">
+        <property name="driverClass">
+            <value>oracle.jdbc.driver.OracleDriver</value>
+        </property>
+        <property name="user">
+            <value>system</value>
+        </property>
+        <property name="password">
+            <value>123</value>
+        </property>
+        <property name="jdbcUrl">
+            <value>jdbc:oracle:thin:@localhost:1521:orcl4</value>
+        </property>
+        <property name="minPoolSize" value="1" />  
+        <property name="maxPoolSize" value="20" />  
+        <property name="maxIdleTime" value="1800" />  
+        <property name="acquireIncrement" value="2" />  
+        <property name="maxStatements" value="0" />  
+        <property name="initialPoolSize" value="2" />  
+        <property name="idleConnectionTestPeriod" value="1800" />  
+        <property name="acquireRetryAttempts" value="30" />  
+        <property name="breakAfterAcquireFailure" value="true" />  
+        <property name="testConnectionOnCheckout" value="false" />
+    </bean>
+	-->
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>jndi/nnyy1</value>
+		</property>
+	</bean>
+	<!-- 
+	<bean id="transactionManager" class="org.springframework.transaction.jta.WebLogicJtaTransactionManager" >  
+        <property name="transactionManagerName" value="javax.transaction.TransactionManager" />         
+    </bean>
+    -->
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+    	<property name="dataSource" ref="dataSource"/>  
+    </bean>   
+    
+    <aop:config>
+		<aop:advisor pointcut="execution(* com.maclaren.bankapp..service.impl.*ServiceImpl.*(..))" advice-ref="txAdvice"/>
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="query*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="load*" read-only="true"/>
+			<tx:method name="*" rollback-for="Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	
+    <bean id="sqlMapClient"
+        class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <!-- 此处应注入ibatis配置文件，而非sqlMap文件，否则会出现“there is no statement.....异常” -->
+        <property name="configLocation">
+            <value>classpath:sqlMap-config.xml</value>
+        </property>
+        <property name="dataSource" ref="dataSource"></property> 
+    </bean>
+	
+	<!-- 自动扫描组件，这里要把web下面的 controller去除，他们是在springmvc-servlet.xml中配置的，如果不去除会影响事务管理的。-->
+	<context:component-scan base-package="com.maclaren.bank">
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.util.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.report.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.login.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.staff.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.auth.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.orga.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.menu.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.biz.finance.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.biz.card.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.biz.guarantee.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.biz.proxy.web.*" />
+		<context:exclude-filter type="regex" expression="com.maclaren.bank.biz.common.web.* "/>
+		<context:exclude-filter type="regex" expression="con.maclaren.bank.biz.transfer.web.*" />
+	</context:component-scan>
+    
+	<!-- Definite Service -->
+	<bean id="loginService" class="com.maclaren.bank.login.service.impl.LoginServiceImpl">
+	</bean>
+	<bean id="reportService" class="com.maclaren.bank.report.service.impl.ReportServiceImpl">
+		<property name="reportDao" ref="reportDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="operatorService" class="com.maclaren.bank.staff.service.impl.OperatorServiceImpl">
+		<property name="operatorDao" ref="operatorDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="authService" class="com.maclaren.bank.auth.service.impl.AuthServiceImpl">
+		<property name="authDao" ref="authDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>	
+	<bean id="customAuthService" class="com.maclaren.bank.auth.service.impl.CustomAuthServiceImpl">
+	</bean>
+	<bean id="forwardAuthService" class="com.maclaren.bank.auth.service.impl.ForwardAuthServiceImpl">
+	</bean>
+	<bean id="reverseAuthService" class="com.maclaren.bank.auth.service.impl.ReverseAuthServiceImpl">
+	</bean>
+	<bean id="proxyLimitService" class="com.maclaren.bank.auth.service.impl.ProxyLimitServiceImpl">
+		<property name="proxyLimitDao" ref="proxyLimitDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="roleService" class="com.maclaren.bank.auth.service.impl.RoleServiceImpl">
+	</bean>
+	<bean id="subbankService" class="com.maclaren.bank.orga.service.impl.SubbankServiceImpl">
+		<property name="subbankDao" ref="subbankDao"></property>
+	</bean>
+	<bean id="accountService" class="com.maclaren.bank.staff.service.impl.AccountServiceImpl">
+	</bean>
+	<bean id="guestService" class="com.maclaren.bank.staff.service.impl.GuestServiceImpl">
+		<property name="guestDao" ref="guestDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="proxyUserService" class="com.maclaren.bank.staff.service.impl.ProxyUserServiceImpl">
+		<property name="proxyUserDao" ref="proxyUserDao"></property>
+	</bean>
+	<bean id="utilService" class="com.maclaren.bank.util.service.impl.UtilServiceImpl">
+		<property name="utilDao" ref="utilDao"></property>
+	</bean>
+	<bean id="exchangeRateService" class="com.maclaren.bank.biz.finance.service.impl.ExchangeRateServiceImpl">
+		<property name="exchangeRateDao" ref="exchangeRateDao"></property>
+	</bean>
+	<bean id="currencyTypeService" class="com.maclaren.bank.biz.finance.service.impl.CurrencyTypeServiceImpl">
+		<property name="currencyTypeDao" ref="currencyTypeDao"></property>
+	</bean>
+	<bean id="financeCalculateService" class="com.maclaren.bank.biz.finance.service.impl.FinanceCalculateServiceImpl">
+		<property name="financeCalculateDao" ref="financeCalculateDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="interBankTransferService" class="com.maclaren.bank.biz.transfer.service.impl.InterBankTransferServiceImpl">
+		<property name="interBankTransferDao" ref="interBankTransferDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<bean id="yieldService" class="com.maclaren.bank.biz.finance.service.impl.YieldServiceImpl">
+	</bean>
+	<bean id="bizService" class="com.maclaren.bank.biz.common.service.impl.BizServiceImpl">
+
+	</bean>
+	<bean id="proxyService" class="com.maclaren.bank.biz.proxy.service.impl.ProxyServiceImpl">
+		<property name="proxyDao" ref="proxyDao"></property>
+	</bean>
+	<bean id="proxyUserDecuctPorxyClientService" 
+		class="com.maclaren.bank.biz.proxy.webservice.service.impl.ProxyUserDecuctPorxyClientServiceImpl">
+		<property name="proxyDao" ref="proxyDao"></property>
+		<property name="util" ref="util"></property>
+	</bean>
+	<!-- Definite DAO -->
+	<bean id="userDao" class="com.maclaren.bank.login.dao.UserDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="reportDao" class="com.maclaren.bank.report.dao.ReportDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="operatorDao" class="com.maclaren.bank.staff.dao.OperatorDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="authDao" class="com.maclaren.bank.auth.dao.AuthDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="customAuthDao" class="com.maclaren.bank.auth.dao.CustomAuthDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="forwardAuthDao" class="com.maclaren.bank.auth.dao.ForwardAuthDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="reverseAuthDao" class="com.maclaren.bank.auth.dao.ReverseAuthDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="proxyLimitDao" class="com.maclaren.bank.auth.dao.ProxyLimitDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="roleDao" class="com.maclaren.bank.auth.dao.RoleDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="subbankDao" class="com.maclaren.bank.orga.dao.SubbankDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="accountDao" class="com.maclaren.bank.staff.dao.AccountDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="guestDao" class="com.maclaren.bank.staff.dao.GuestDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="proxyUserDao" class="com.maclaren.bank.staff.dao.ProxyUserDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="utilDao" class="com.maclaren.bank.util.dao.UtilDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="exchangeRateDao" class="com.maclaren.bank.biz.finance.dao.ExchangeRateDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="currencyTypeDao" class="com.maclaren.bank.biz.finance.dao.CurrencyTypeDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="financeCalculateDao" class="com.maclaren.bank.biz.finance.dao.FinanceCalculateDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="interBankTransferDao" class="com.maclaren.bank.biz.transfer.dao.InterBankTransferDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="yieldDao" class="com.maclaren.bank.biz.finance.dao.YieldDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="bizDao" class="com.maclaren.bank.biz.common.dao.BizDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="proxyDao" class="com.maclaren.bank.biz.proxy.dao.ProxyDAO">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<!-- Definite Other -->
+	<bean id="util" class="com.maclaren.bank.util.Util" />
+	<!-- xfire relation -->
+	<bean id="addressingHandler" class="org.codehaus.xfire.addressing.AddressingInHandler" />  
+</beans>
+

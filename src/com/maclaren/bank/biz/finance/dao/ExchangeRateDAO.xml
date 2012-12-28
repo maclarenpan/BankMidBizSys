@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finance">
+	<typeAlias alias="exchangeRate" type="com.maclaren.bank.biz.finance.bean.ExchangeRate" />
+	<resultMap id="exchangeRateMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="currencyType1_id" column="currencyType1_id" />
+		<result property="currencyType2_id" column="currencyType2_id" />
+		<result property="rate" column="rate" />
+	</resultMap>
+	<select id="queryAllExchangeRate" parameterClass="java.util.Map"
+		resultClass="exchangeRate">
+		select
+			t.id,
+			t.currencyType1_id,
+			t.currencyType2_id,
+			t.rate
+		from
+			acc_exchangerate t
+	</select>
+	<select id="queryExchangeRateByConditions" parameterClass="java.util.Map"
+		resultClass="exchangeRate">
+		select 
+			t.id,
+			t.currencyType1_id,
+			t.currencyType2_id,
+			t.rate
+		from 
+			acc_exchangerate t
+		where
+			1 = 1
+			<isNotEmpty prepend="AND" property="currencyType1_id">
+		 		t.currencyType1_id = #currencyType1_id#	
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="currencyType2_id">
+				t.currencyType2_id = #currencyType2_id#
+			</isNotEmpty>
+	</select>
+	<insert id="addExchangeRate" parameterClass="exchangeRate">
+		insert into acc_exchangerate(
+			sql_acc_exchangerate.nextval,
+			currencyType1_id,
+			currencyType2_id,
+			rate
+		)
+		values(
+			#currencyType1_id#,
+			#currencyType2_id#,
+			#rate#
+		)
+	</insert>
+	<update id="updateExchangeRate" parameterClass="exchangeRate">
+		update acc_exchangerate set
+			currencyType1_id = #currencyType1_id#,
+			currencyType2_id = #currencyType2_id#,
+			rate = #rate#
+		where 
+			id = #id#
+	</update>
+	<delete id="delExchangeRate" parameterClass="exchangeRate">
+		delete from 
+			acc_exchangerate 
+		where 
+			id = #id#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+

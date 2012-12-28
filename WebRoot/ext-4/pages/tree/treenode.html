@@ -1,0 +1,38 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+	Ext.onReady(function(){
+
+	var root=new Ext.tree.TreeNode({
+		id:"root",	
+		text:"树的根"
+		});	
+	var c1=new Ext.tree.TreeNode({
+		text:"子节点1"
+	})
+	var c2=new Ext.tree.AsyncTreeNode({
+		text:"子节点2"
+	});
+	root.appendChild(c1);
+	root.appendChild(c2);	
+	var tree=new Ext.tree.TreePanel({
+		renderTo:"hello",
+		root:root,
+		width:300,
+		loader:new Ext.tree.TreeLoader({
+		applyLoader:false,
+		url:"treedata.js"
+		})
+	});
+	
+ });
+
+</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

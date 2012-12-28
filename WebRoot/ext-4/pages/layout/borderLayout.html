@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+		<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+		<script type="text/javascript">
+			Ext.onReady(function(){
+				new Ext.Viewport({
+					layout: 'border',
+					items: [
+						{
+							region: 'north',
+							height: 50,
+							title: "top panel"
+						},
+						{
+							region: 'south',
+							height: 50,
+							title: "bottom panel"
+						},
+						{
+							region: 'center',
+							height: 100,
+							title: "center panel"
+						}
+					]
+				});
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

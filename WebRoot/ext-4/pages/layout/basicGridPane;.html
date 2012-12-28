@@ -1,0 +1,48 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function(){ 
+
+var data=[ [1, 'EasyJWeb', 'EasyJF','www.easyjf.com'],
+
+[2, 'jfox', 'huihoo','www.huihoo.org'], 
+
+[3, 'jdon', 'jdon','www.jdon.com'],
+
+[4, 'springside', 'springside','www.springside.org.cn'] ];
+
+var store=new Ext.data.SimpleStore({data:data,fields:["id","name","organization","homepage"]});
+
+var grid = new Ext.grid.GridPanel({
+
+renderTo:"hello",
+
+title:"中国Java开源产品及团队",
+
+height:150,
+
+width:600, 
+
+columns:[{header:"项目名称",dataIndex:"name"},
+
+{header:"开发团队",dataIndex:"organization"},
+
+{header:"网址",dataIndex:"homepage"}],
+
+store:store,
+
+autoExpandColumn:2
+
+}); 
+
+});
+
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

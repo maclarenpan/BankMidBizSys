@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finance">
+	<typeAlias alias="proxyUserLimit" type="com.maclaren.bank.biz.proxy.bean.ProxyUserLimit" />
+	<typeAlias alias="proxyUserTypeLimit" type="com.maclaren.bank.biz.proxy.bean.ProxyUserTypeLimit" />
+	<typeAlias alias="proxyUserAccountService" type="com.maclaren.bank.biz.proxy.bean.ProxyUserAccountService" />
+	<typeAlias alias="proxyUserCombo" type="com.maclaren.bank.biz.proxy.bean.ProxyUserCombo" />
+	<typeAlias alias="proxyClientCombo" type="com.maclaren.bank.biz.proxy.bean.ProxyClientCombo" />
+	<typeAlias alias="orderProxyBargain" type="com.maclaren.bank.biz.proxy.bean.OrderProxyBargain" />
+	<typeAlias alias="proxyUserAccountAmount" type="com.maclaren.bank.biz.proxy.bean.ProxyUserAccountAmount" />
+	<typeAlias alias="proxyClientAccountAmount" type="com.maclaren.bank.biz.proxy.bean.ProxyClientAccountAmount" />
+	<resultMap id="exchangeRateMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="currencyType1_id" column="currencyType1_id" />
+		<result property="currencyType2_id" column="currencyType2_id" />
+		<result property="rate" column="rate" />
+	</resultMap>
+	<resultMap id="proxyUserLimitMapping" class="proxyUserLimit">
+		<result property="id" column="id" />
+		<result property="proxyUser_id" column="proxyUser_id" />
+		<result property="proxyUserName" column="proxyUserName" />
+		<result property="minAmount" column="minAmount" />
+		<result property="maxAmount" column="maxAmount" />
+	</resultMap>
+	<!-- 结算代理业务存储过程 -->
+	<procedure id="calProxyService">
+		call PROC_CALPROXYSERVICE()
+	</procedure>
+	
+	<!-- 跨行转账结算存储过程 -->
+	<procedure id="calFromInterBankTrans">
+		 call PROC_CALFROMINTERBANKTRANS()
+	</procedure>
+	
+	<update id="decuteProxyClient" parameterClass="java.util.Map">
+		update acc_account_service t
+			set
+				t.amount = t.amount - #shouldPay#,
+				t.modifytime = sysdate,
+				t.operator_id = #operator_id#
+		where 
+			t.subbank_id = #subbank_id# and
+			t.service_id= #service_id# and
+			t.account_id = (select p.account_id from acc_account_guest p where p.guest_id = #guest_id#)
+	</update>
+	
+	<insert id="generateProxyServiceOrder" parameterClass="java.util.Map">
+		insert into order_proxybargain (
+			id,
+			service_id,
+			guest_id,
+			proxyUser_id,
+			subbank_id,
+			amount,
+			createtime,
+			operator_id,
+			currencyType_id,
+			status
+		)
+		values (
+			SEQ_ORDER_PROXYBARGAIN.nextval,
+			#service_id#,
+			#guest_id#,
+			#proxyUser_id#,
+			#subbank_id#,
+			#amount#,
+			sysdate,
+			#operator_id#,
+			#currencyType_id#,
+			0
+		)
+	</insert>
+	
+	<select id="queryAllProxyUserLimit" parameterClass="java.util.Map"
+		resultClass="proxyUserLimit">
+		select 
+			t.id,
+			t.proxyuser_id proxyUser_id,
+			p.username proxyUserName,
+			t.minamount,
+			t.maxamount
+		from
+			proxyuser_proxylimit t, proxyuser p
+		where
+			t.proxyuser_id = p.id
+	</select>
+	
+	<select id="queryProxyUserLimitByConditions" parameterClass="java.util.Map"
+		resultClass="proxyUserLimit">
+		select
+			t.id,
+			t.proxyuser_id proxyUser_id,
+			p.username proxyUserName,
+			t.minamount,
+			t.maxamount
+		from
+			proxyuser_proxylimit t, proxyuser p
+		where
+			t.proxyuser_id = p.id
+			<isNotEmpty prepend="and" property="proxyUserName">
+			<![CDATA[p.username like '%$proxyUserName$%']]>
+			</isNotEmpty>
+	</select>
+	
+	<update id="updateProxyUserLimit" parameterClass="java.util.Map">
+		update proxyuser_proxylimit set
+			minamount = #minAmount#,
+			maxamount = #maxAmount#
+		where
+			id = #id#
+	</update>
+	
+	<insert id="insertProxyUserLimit" parameterClass="java.util.Map">
+		insert into proxyuser_proxylimit (
+			id,
+			proxyuser_id,
+			minamount,
+			maxamount
+		)
+		values(
+			SEQ_PROXYUSER_PROXYLIMIT.nextval,
+			#proxyuser_id#,
+			#minamount#,
+			#maxamount#
+		)
+	</insert>
+	
+	<delete id="deleteProxyUserLimit" parameterClass="string">
+		delete from
+			proxyuser_proxylimit
+		where
+			id = #id#		
+	</delete>
+
+	<select id="queryAllProxyUserTypeLimit" parameterClass="java.util.Map"
+		resultClass="proxyUserTypeLimit">
+		select 
+			t.id,
+			t.proxyusertype_id proxyUserType_id,
+			p.proxyusertypename proxyUserTypeName,
+			t.minamount,
+			t.maxamount
+		from 
+			proxyusertype_proxylimit t, proxyusertype p
+		where
+			t.proxyusertype_id = p.id
+	</select>
+	
+	<select id="queryProxyUserTypeLimitByConditions" parameterClass="java.util.Map"
+		resultClass="proxyUserTypeLimit">
+		select
+			t.id,
+			t.proxyusertype_id proxyUserType_id,
+			p.proxyusertypename proxyUserTypeName,
+			t.minamount,
+			t.maxamount
+		from
+			proxyusertype_proxylimit t, proxyusertype p
+		where
+			t.proxyusertype_id = p.id
+			<isNotEmpty prepend="and" property="proxyUserTypeName">
+			<![CDATA[p.proxyusertypename like '%$proxyUserTypeName$%']]>
+			</isNotEmpty>
+	</select>
+	
+	<update id="updateProxyUserTypeLimit" parameterClass="java.util.Map">
+		update proxyusertype_proxylimit set
+			minamount = #minAmount#,
+			maxamount = #maxAmount#
+		where
+			id = #id#
+	</update>
+	<select id="queryAllProxyUserAccountService" resultClass="proxyUserAccountService">
+		select 
+			p.id,
+			p.proxyUser_id,
+			t.account_id,
+			p.service_id
+		from
+			biz_proxyuser_service p, proxyuser t
+		where
+			p.proxyuser_id = t.id
+	</select>
+	<select id="queryProxyUserCombo" resultClass="proxyUserCombo">
+		select
+			id proxyUser_id,
+			username proxyUserName
+		from
+			proxyuser
+	</select>
+	<select id="queryProxyClientCombo" resultClass="proxyClientCombo">
+		select
+			id proxyClient_id,
+			username proxyClientName
+		from
+			proxyclient
+	</select>
+	<select id="queryProxyUserAccountServiceByConditions" resultClass="proxyUserAccountService" parameterClass="java.util.Map">
+		SELECT 
+			p.id,
+			p.proxyUser_id,
+			t.account_id,
+			p.service_id	
+		 FROM 
+		 	biz_proxyuser_service p, proxyuser t
+		 where	
+			p.proxyuser_id = t.id
+		 <isNotEmpty prepend="AND" property="proxyUser_id">
+			p.proxyuser_id = #proxyUser_id#
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="account_id">
+		 	t.account_id = #account_id#
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="service_id">
+		 	p.service_id = #service_id#
+		 </isNotEmpty>
+	</select>
+	<insert id="insertProxyUserService" parameterClass="java.util.Map">
+		insert into biz_proxyuser_service
+			(
+				id,
+				proxyuser_id,
+				service_id,
+				createtime,
+				status
+			)
+		values
+			(
+				seq_operator.nextval,
+				#proxyUser_id#,
+				#service_id#,
+				sysdate,
+				0
+			)
+	</insert>
+	<delete id="deleteProxyUserService" parameterClass="string">
+		delete from 
+			biz_proxyuser_service
+		where
+			id = #id#
+			
+	</delete>
+	<update id="updateProxyUserService" parameterClass="java.util.Map">
+		update biz_proxyuser_service
+		set
+			proxyuser_id = #proxyUser_id#,
+			service_id = #service_id#，
+			account_id = #account_id#
+		where
+			id = #id#
+	</update>
+	<select id="getAllProxyUserAccountAmount" resultClass="proxyUserAccountAmount">
+		select
+			t.id,
+			p.id proxyUser_id,
+			p.account_id,
+			t.service_id,
+			t.subbank_id bank_id,
+			t.amount
+		from 
+			proxyuser p, acc_account_service t
+		where
+			p.account_id = t.account_id
+	</select>
+	<select id="queryProxyUserAccountAmountByConditions" parameterClass="java.util.Map" 
+		resultClass="proxyUserAccountAmount">
+		select
+			t.id,
+			p.id proxyUser_id,
+			p.account_id,
+			t.service_id,
+			t.subbank_id bank_id,
+			t.amount
+		from 
+			proxyuser p, acc_account_service t
+		where
+			p.account_id = t.account_id
+			<isNotEmpty prepend="AND" property="proxyUser_id">
+				p.id = #proxyUser_id#
+		 	</isNotEmpty>	
+	</select>
+	<select id="getAllProxyClientAccountAmount" resultClass="proxyClientAccountAmount">
+		select 
+			q.id,
+			p.guest_id proxyClient_id,
+			p.account_id,
+			q.service_id,
+			q.subbank_id bank_id,
+			q.amount
+		from 
+			acc_account_guest p, acc_account_service q 
+		where
+			p.account_id = q.account_id
+	</select>
+	<select id="queryProxyClientAccountAmountByConditions" parameterClass="java.util.Map" 
+		resultClass="proxyClientAccountAmount">
+		select 
+			q.id,
+			p.guest_id proxyClient_id,
+			p.account_id,
+			q.service_id,
+			q.subbank_id bank_id,
+			q.amount
+		from 
+			acc_account_guest p, acc_account_service q 
+		where
+			p.account_id = q.account_id
+			<isNotEmpty prepend="AND" property="proxyClient_id">
+				p.guest_id = #proxyClient_id#
+		 	</isNotEmpty>	
+	</select>
+</sqlMap>
+
+

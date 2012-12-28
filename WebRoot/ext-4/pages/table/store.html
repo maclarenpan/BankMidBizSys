@@ -1,0 +1,29 @@
+<html>
+<head>
+	<title>accordion Test</title>
+	<link rel="stylesheet" type="text/css" href="../../extjs/resources/css/ext-all.css"></link>
+	<script type="text/javascript" src="../../extjs/ext-all.js"></script>
+	<script type="text/javascript">
+		var MyRecord = Ext.data.Record.create([
+			{name: 'title'},
+			{name: 'username', mapping: 'author'},
+			{name: 'loginTimes', mapping: 'int'},
+			{naem: 'lastLoginTime', mapping: 'loginTime', type: 'date'}
+		]);
+		var dataProxy = new Ext.data.HttpProxy({url:"link.ejf"});
+		var theReader = new Ext.data.JsonReader({
+			totalProperty: "result",
+			root: "rows",
+			id: "id"
+		}, MyRecord);
+		var store = new Ext.data.Store({
+			proxy: dataProxy,
+			reader: theReader
+		});
+		store.load();
+	</script>
+</head>
+<body>
+	<div id="div1"></div>
+</body>
+</html>

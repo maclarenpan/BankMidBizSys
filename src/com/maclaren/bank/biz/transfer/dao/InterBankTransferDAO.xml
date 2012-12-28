@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="transfer">
+	<typeAlias alias="interBankTransfer" type="com.maclaren.bank.biz.transfer.bean.InterBankTransfer" />
+	<resultMap id="accountMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="guest_id" column="guest_id" />
+		<result property="fromSubbank_id" column="fromSubbank_id" />
+		<result property="toSubbank_id" column="toSubbank_id" />
+		<result property="currencyType_id" column="currencyType_id" />
+		<result property="amount" column="amount" />
+		<result property="createtime" column="createtime" />
+		<result property="status" column="status" />
+	</resultMap>
+	<select id="queryAllinterBankTransfer" resultClass="interBankTransfer">
+		select 
+			id,
+			guest_id,
+			fromSubbank_id,
+			toSubbank_id,
+			currencyType_id,
+			amount,
+			createtime,
+			status
+		from acc_interbanktransfer
+	</select>
+	<insert id="addInterBankTransfer" parameterClass="interBankTransfer">
+		insert into acc_interbanktransfer(
+			guest_id,
+			fromSubbank_id,
+			toSubbank_id,
+			currencyType_id,
+			amount,
+			createtime,
+			status
+		)
+		values(
+			#guest_id#,
+			#fromSubbank_id#,
+			#toSubbank_id#,
+			#currencyType_id#,
+			#amount#,
+			#createtime#,
+			#status#
+		)
+	</insert>
+	<delete id="delInterBankTransfer" parameterClass="string">
+		delete from 
+			acc_interbanktransfer
+		where 
+			id = #id#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finance">
+	<typeAlias alias="exchangeRate" type="com.maclaren.bank.biz.finance.bean.ExchangeRate" />
+	<resultMap id="exchangeRateMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="currencyType1_id" column="currencyType1_id" />
+		<result property="currencyType2_id" column="currencyType2_id" />
+		<result property="rate" column="rate" />
+	</resultMap>
+	<select id="queryRateByConditions" parameterClass="java.util.Map"
+		resultClass="float">
+		select 
+			rate
+		from 
+			acc_exchangerate
+		where 
+			currencyType1_id = #currencyType1# and
+			currencyType2_id = #currencyType2#
+	</select>
+	<select id="getProxyClientServicePay" parameterClass="java.util.Map"
+		resultClass="double">
+		select
+			b.amount
+		from 
+			acc_account_guest a, acc_account_service b
+		where 
+			a.guest_id = #guest_id# and
+			a.account_id = b.account_id and
+			b.subbak_id = #subbank_id#
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+

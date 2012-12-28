@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+   "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="staff">
+	<typeAlias alias="account" type="com.maclaren.bank.staff.bean.Account" />
+	<typeAlias alias="accountType" type="com.maclaren.bank.staff.bean.AccountType" />
+	<typeAlias alias="accountCombo" type="com.maclaren.bank.staff.bean.AccountCombo" />
+	<resultMap id="accountMapping" class="java.util.Map" >
+		<result property="id" column="id" />
+		<result property="accountType_id" column="accountType_id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="subbank_id" column="subbank_id" />
+		<result property="modifytime" column="modifytime" />
+	</resultMap>
+	<resultMap id="accountTypeMapping" class="java.util.Map">
+		<result property="id" column="id" />
+		<result property="accountTypeName" column="accountTypeName" />
+	</resultMap>
+	<select id="queryAllAccount" parameterClass="java.util.Map"
+		resultClass="account">
+		select
+			id,
+			accountType_id,
+			username,
+			password,
+			subbank_id bank_id,
+			modifytime
+		from acc_account
+	</select>
+	<select id="queryAccountCombo" parameterClass="java.util.Map"
+		resultClass="accountCombo">
+		select
+			id account_id,
+			username accountName
+		from acc_account
+	</select>
+	<select id="queryAccountByConditions" parameterClass="java.util.Map"
+		resultClass="account">
+		select
+			id,
+			accountType_id,
+			username,
+			password,
+			subbank_id bank_id,
+			modifytime
+		from acc_account
+		 where	
+			1 = 1
+		 <isNotEmpty prepend="AND" property="username">
+		 <![CDATA[username like '%$username$%']]>
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="bank_id">
+		 	bank_id = #bank_id#
+		 </isNotEmpty>
+		 <isNotEmpty prepend="AND" property="accountType_id">
+		 	accountType_id = #accountType_id#
+		 </isNotEmpty>
+	</select>
+	<insert id="insertAccount" parameterClass="java.util.Map">
+		insert into acc_account
+			(
+				id,
+				accountType_id,
+				username,
+				password,
+				subbank_id,
+				modifytime
+			)
+		values
+			(
+				seq_acc_account.nextval,
+				#accountType_id#,
+				#username#,
+				#password#,
+				#bank_id#,
+				sysdate
+			)
+	</insert>
+	<delete id="deleteAccount" parameterClass="string">
+		delete from 
+			acc_account
+		where
+			id = #id#
+			
+	</delete>
+	<update id="updateAccount" parameterClass="java.util.Map">
+		update acc_account
+		set
+			accountType_id = #accountType_id#,
+			username = #username#,
+			password = #password#,
+			subbank_id = #bank_id#,
+			modifytime = sysdate
+		where
+			id = #id#
+	</update>
+	<select id="queryAllAccountType" parameterClass="java.util.Map"
+		resultClass="accountType">
+		select 
+			id accountType_id,
+			accountTypeName
+		from 
+			acc_accountType
+	</select>
+</sqlMap>
+
+
+
+
+
+
+
+
